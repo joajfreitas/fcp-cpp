@@ -19,6 +19,7 @@ class FcpMessage {
 		void decompile(json j);
 		std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata msg);
 		CANdata encode_msg(std::map<std::string, double> decoded_msg);
+		CANdata parse_big_endian(CANdata msg, std::pair<std::string, FcpSignal> el);
 
 };
 

@@ -77,7 +77,7 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
 CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals){
 
 	CANdata msg = this->devices[dev_id].msgs[msg_id]->encode_msg(signals);
-	msg.sid =  GET_SID(this->devices[dev_id].msgs[msg_id]->id, this->devices[dev_id].id);
+	msg.sid =  GET_SID(this->devices[dev_id].id, this->devices[dev_id].msgs[msg_id]->id);
 	return msg;
 }
 

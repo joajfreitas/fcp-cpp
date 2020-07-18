@@ -25,9 +25,9 @@ void FcpMessage::decompile(json j) {
 std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CANdata msg) {
 	std::map<std::string, double> signals;
 	
-	for (auto& el: this->signals) {
+	for (auto& el: this->signals)
 		signals[el.first] = el.second.decode_signal(msg);
-	}
+	
 	return std::make_pair(this->name, signals);
 }
 
