@@ -7,10 +7,9 @@
 
 #include "candata.h"
 
+#include "signal_parser.h"
 
 #include "json.hpp"
-
-#include "signal_parser.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -22,6 +21,8 @@ class FcpSignal {
 		uint64_t encode_signal(double signal);
 		fcp_type_t getType (std::string type);
 		fcp_endianess_t getEndianess (std::string type);
+		string mux;
+		unsigned mux_count;
 	
 	private:
 		fcp_signal_t signal;

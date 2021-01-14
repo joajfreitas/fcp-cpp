@@ -13,6 +13,8 @@ class FcpMessage {
 		int id;
 		int dlc;
 		int frequency;
+		bool muxed;
+		string mux;
 		std::string name;
 		std::map<std::string, FcpSignal> signals;
 
