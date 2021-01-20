@@ -1,13 +1,15 @@
 CC=g++
 
-C_SOURCES := $(shell find -L . -type f -name "*.c" | grep -v "main" | cut -d"/" -f2-)
-CPP_SOURCES += $(shell find -L . -type f -name "*.cpp" | cut -d"/" -f2-)
+C_SOURCES := $(shell find -L src -type f -name "*.c" | grep -v "main" | cut -d"/" -f2-)
+CPP_SOURCES += $(shell find -L src -type f -name "*.cpp" | cut -d"/" -f2-)
+
+OBJDIR := src/
 
 OBJECTS := $(addprefix $(OBJDIR), $(C_SOURCES:.c=.o))
 OBJECTS += $(addprefix $(OBJDIR), $(CPP_SOURCES:.cpp=.o))
 
-#OPT := -Ofast
-OPT := -g
+OPT := -Ofast
+#OPT := -g
 
 %.o: %.cpp
 	$(CC) $(OPT) -c -fPIC  $<  -o $@
@@ -27,4 +29,4 @@ install:
 
 clean:
 	rm -rf *.so
-	rm -rf *.o
+	rm -rf **/*.o *.o
