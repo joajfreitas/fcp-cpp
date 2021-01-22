@@ -7,7 +7,9 @@
 
 #include "candata.h"
 
-#include "signal_parser.h"
+extern "C" {
+	#include "signal_parser.h"
+}
 
 #include "json.hpp"
 
