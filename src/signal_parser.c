@@ -197,7 +197,7 @@ fcp_type_generic(decode_signal)
 
     fcp_type_generic(encode_signal)
 
-    /*
+#if 0
 int main(int argc, char *argv[])
 {
 	CANdata msg = {
@@ -218,5 +218,5 @@ int main(int argc, char *argv[])
 	printf("%f\n", fcp_decode_signal_double(msg, signal));
 	return 0;
 }
-*/
+#endif
     // clang-format on
