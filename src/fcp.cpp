@@ -26,6 +26,8 @@ void Fcp::decompile_file(std::string filename)
 
     this->decompile(j);
 
+    file.close();
+
     return;
 }
 
@@ -120,4 +122,18 @@ std::string Fcp::get_msg_name(uint16_t sid)
         else
             return "";
     }
+}
+
+pair<string, FcpSignal *> Fcp::get_signal(std::string name) {
+    for (auto dev: this->devices) {
+        for (auto msg: dev.second.msgs) {
+            for (auto signal: msg.second->signals) {
+                if (name.find(signal.first) != std::string::npos) {
+                    return make_pair(signal.first, &msg.second->signals[signal.first]);
+                }
+            }
+        }
+    }
+
+    return make_pair("", nullptr);
 }

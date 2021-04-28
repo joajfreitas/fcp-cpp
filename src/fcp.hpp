@@ -42,6 +42,8 @@ class Fcp {
 		std::string get_dev_name(uint16_t sid);
 		std::string get_msg_name(uint16_t sid);
 
+		pair<string, FcpSignal *> get_signal(std::string name);
+
 
 	private:
 		std::map<int, FcpMessage *> msgs;

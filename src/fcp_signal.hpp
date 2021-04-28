@@ -23,8 +23,11 @@ class FcpSignal {
 		uint64_t encode_signal(double signal);
 		fcp_type_t getType (std::string type);
 		fcp_endianess_t getEndianess (std::string type);
+		fcp_signal_t get_signal() {return this->signal;};
 		string mux;
 		unsigned mux_count;
+		string unit;
+		string comment;
 	
 	private:
 		fcp_signal_t signal;

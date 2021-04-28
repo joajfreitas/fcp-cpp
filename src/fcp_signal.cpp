@@ -13,6 +13,8 @@ void FcpSignal::decompile(json j)
     this->signal.type = this->getType(j["type"]);
     this->mux = string(j["mux"]);
     this->mux_count = j["mux_count"];
+    this->unit = j["unit"];
+    this->comment = j["comment"];
 
     return;
 }
