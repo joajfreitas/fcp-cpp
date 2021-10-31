@@ -27,7 +27,7 @@ fcp-cpp.so: $(OBJECTS)
 	$(CC) $(OPT) $^ -shared -o $@
 
 format:
-	clang-format -i -style=Webkit *.c *.cpp || TRUE
+	clang-format -i -style=Webkit  src/*.cpp
 
 install:
 	@mkdir -p /usr/lib/fcp-cpp

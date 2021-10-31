@@ -2,12 +2,8 @@
 #include "fcp.hpp"
 #include "fcp_command.hpp"
 #include "fcp_message.hpp"
-
 #include "json.hpp"
-
 #include <iostream>
-
-using namespace std;
 
 using json = nlohmann::json;
 
@@ -53,4 +49,13 @@ std::string FcpDevice::get_cmd_name(int cmd_id)
         return this->cmd_names[cmd_id];
     else
         return "";
+}
+
+FcpMessage* FcpDevice::get_message(int messageIdentifier)
+{
+    for (auto msgs : this->msgs) {
+        if (msgs.second->id == messageIdentifier)
+            return msgs.second;
+    }
+    return NULL;
 }

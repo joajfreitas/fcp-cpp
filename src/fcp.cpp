@@ -1,4 +1,4 @@
-#include <fstream>
+﻿#include <fstream>
 #include <iostream>
 
 #include <stdint.h>
@@ -11,19 +11,20 @@
 #include "json.hpp"
 
 using json = nlohmann::json;
-using namespace std;
 
 void Fcp::decompile_file(std::string filename)
 {
-    char buffer[FILE_MAX_SIZE];
+    char buffer[FILE_MAX_SIZE] = { 0 };
     std::ifstream file;
     file.open(filename);
 
     file.read(buffer, FILE_MAX_SIZE);
+    if (buffer[0] == 0) {
+        throw badJsonFile();
+    }
     file.close();
 
     auto j = json::parse(buffer);
-
     this->decompile(j);
 
     file.close();
@@ -62,22 +63,20 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
 {
     if (this->msgs.count(msg.sid)) {
         return this->msgs.at(msg.sid)->decode_msg(msg);
-    }
-    else if (this->common_msgs.count(msg.sid)) {
+    } else if (this->common_msgs.count(msg.sid)) {
         auto msg_handle = this->common_msgs.at(msg.sid);
         auto decoded = msg_handle->decode_msg(msg);
         decoded.first = this->devices[this->get_dev_name(decoded.second["dst"])].get_cmd_name(decoded.second["id"]);
         return decoded;
-    }
-    else {
+    } else {
         throw std::exception();
     }
 }
 
-CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals)
+CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list)
 {
 
-    CANdata msg = this->devices[dev_id].msgs[msg_id]->encode_msg(signals);
+    CANdata msg = this->devices[dev_id].msgs[msg_id]->encode_msg(signals_list);
     msg.sid = GET_SID(this->devices[dev_id].id, this->devices[dev_id].msgs[msg_id]->id);
     return msg;
 }
@@ -109,7 +108,6 @@ std::string Fcp::get_dev_name(uint16_t sid)
 
 std::string Fcp::get_msg_name(uint16_t sid)
 {
-
     int count = this->msgs.count(sid);
     if (count) {
         return this->msgs[sid]->name;
@@ -124,16 +122,29 @@ std::string Fcp::get_msg_name(uint16_t sid)
     }
 }
 
-pair<string, FcpSignal *> Fcp::get_signal(std::string name) {
-    for (auto dev: this->devices) {
-        for (auto msg: dev.second.msgs) {
-            for (auto signal: msg.second->signals) {
+std::pair<std::string, FcpSignal*> Fcp::get_signal(std::string name)
+{
+    for (auto dev : this->devices) {
+        for (auto msg : dev.second.msgs) {
+            for (auto signal : msg.second->signals_list) {
                 if (name.find(signal.first) != std::string::npos) {
-                    return make_pair(signal.first, &msg.second->signals[signal.first]);
+                    return std::make_pair(signal.first, &msg.second->signals_list[signal.first]);
                 }
             }
         }
     }
 
-    return make_pair("", nullptr);
+    return std::make_pair("", nullptr);
+}
+
+// Freitas
+FcpDevice* Fcp::get_device(int deviceIdentifier)
+{
+
+    for (auto dev : this->devices) {
+        if (dev.second.id == deviceIdentifier) {
+            return &this->devices[dev.first];
+        }
+    }
+    return NULL;
 }

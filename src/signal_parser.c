@@ -109,7 +109,7 @@ int64_t bitfield_sign_conv(uint64_t bitfield, fcp_signal_t signal)
 uint64_t big_endian_conv(uint64_t word, fcp_signal_t signal);
 uint64_t big_endian_conv(uint64_t word, fcp_signal_t signal)
 {
-    if (signal.endianess != BIG) {
+    if (signal.endianess != FCP_BIG) {
         return word;
     }
 
@@ -130,25 +130,25 @@ uint64_t big_endian_conv(uint64_t word, fcp_signal_t signal)
     _type fcp_decode_signal_##_type(CANdata msg, fcp_signal_t signal)    \
     {                                                                    \
         switch (signal.type) {                                           \
-        case UNSIGNED:                                                   \
+        case FCP_UNSIGNED:                                                   \
             return (_type)apply_linear_##_type(                          \
                 big_endian_conv((uint64_t)                               \
                                     get_bitfield(can_word(msg), signal), \
                     signal),                                             \
                 signal);                                                 \
-        case SIGNED:                                                     \
+        case FCP_SIGNED:                                                     \
             return (_type)apply_linear_##_type(                          \
                 bitfield_sign_conv(                                      \
                     big_endian_conv(                                     \
                         get_bitfield(can_word(msg), signal), signal),    \
                     signal),                                             \
                 signal);                                                 \
-        case FLOAT:                                                      \
+        case FCP_FLOAT:                                                      \
             return (_type)apply_linear_double(                           \
                 big_endian_conv(                                         \
                     get_bitfield(can_word(msg), signal), signal),        \
                 signal);                                                 \
-        case DOUBLE:                                                     \
+        case FCP_DOUBLE:                                                     \
             return (_type)apply_linear_double(                           \
                 bitfield_sign_conv(                                      \
                     big_endian_conv(                                     \
@@ -170,22 +170,22 @@ fcp_type_generic(decode_signal)
         uint64_t word = 0;                                                        \
         double d32 = 0, d64 = 0;                                                  \
         switch (signal.type) {                                                    \
-        case UNSIGNED:                                                            \
+        case FCP_UNSIGNED:                                                            \
             return set_bitfield(                                                  \
                 big_endian_conv(                                                  \
                     apply_linear_uint64_t((uint64_t)value, signal), signal),      \
                 signal);                                                          \
-        case SIGNED:                                                              \
+        case FCP_SIGNED:                                                              \
             return set_bitfield(                                                  \
                 big_endian_conv((uint64_t)                                        \
                                     apply_linear_int64_t((int64_t)value, signal), \
                     signal),                                                      \
                 signal);                                                          \
-        case FLOAT:                                                               \
+        case FCP_FLOAT:                                                               \
             d32 = apply_linear_double(value, signal);                             \
             word = *(uint32_t*)&d32;                                              \
             return set_bitfield(big_endian_conv(word, signal), signal);           \
-        case DOUBLE:                                                              \
+        case FCP_DOUBLE:                                                          \
             d64 = apply_linear_double(value, signal);                             \
             word = *(uint64_t*)&d64;                                              \
             return set_bitfield(big_endian_conv(word, signal), signal);           \
