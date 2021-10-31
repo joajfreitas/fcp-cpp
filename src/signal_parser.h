@@ -6,15 +6,15 @@
 #include "candata.h"
 
 typedef enum _fcp_endianess {
-	LITTLE,
-	BIG
+    FCP_LITTLE,
+    FCP_BIG
 } fcp_endianess_t;
 
 typedef enum _fcp_type {
-	UNSIGNED,
-	SIGNED,
-	FLOAT,
-	DOUBLE
+    FCP_UNSIGNED,
+    FCP_SIGNED,
+    FCP_FLOAT,
+    FCP_DOUBLE
 } fcp_type_t;
 
 typedef struct _signal {
