@@ -76,8 +76,24 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
 CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list)
 {
 
-    CANdata msg = this->devices[dev_id].msgs[msg_id]->encode_msg(signals_list);
-    msg.sid = GET_SID(this->devices[dev_id].id, this->devices[dev_id].msgs[msg_id]->id);
+    CANdata msg;
+
+    if (dev_id == "common")
+    {
+        for (auto const&[key, val]: this->common_msgs)
+        {
+            if(val->name ==  msg_id)
+            {
+                msg = this->common_msgs[key]->encode_msg(signals_list);
+                msg.sid = GET_SID(0, val->id);
+            }
+        }
+    }
+    else {
+        msg = this->devices[dev_id].msgs[msg_id]->encode_msg(signals_list);
+        msg.sid = GET_SID(this->devices[dev_id].id, this->devices[dev_id].msgs[msg_id]->id);
+    }
+
     return msg;
 }
 
