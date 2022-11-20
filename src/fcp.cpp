@@ -189,3 +189,8 @@ FcpMessage *Fcp::get_msg(uint16_t sid)
         return nullptr;
     }
 }
+
+std::map<int, FcpMessage*> Fcp::get_msgs()
+{
+    return msgs;
+}
