@@ -180,3 +180,17 @@ FcpDevice *Fcp::get_device(int deviceIdentifier)
     }
     return NULL;
 }
+ 
+FcpMessage *Fcp::get_msg(uint16_t sid)
+{
+    if(msgs.count(sid)){
+        return msgs[sid];
+    }else {
+        return nullptr;
+    }
+}
+
+std::map<int, FcpMessage*> Fcp::get_msgs()
+{
+    return msgs;
+}

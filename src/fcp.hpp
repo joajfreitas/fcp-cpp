@@ -1,6 +1,7 @@
 #ifndef __FCP_H__
 #define __FCP_H__
 
+#include <cstdint>
 #include <stdlib.h>
 #include <string.h>
 #include <map>
@@ -47,8 +48,12 @@ public:
 	CANdata encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 	std::string get_dev_name(uint16_t sid);
 	std::string get_msg_name(uint16_t sid);
+    
+    FcpMessage * get_msg(uint16_t sid);
+    std::map <int, FcpMessage*> get_msgs(void);
 
-	std::pair<std::string, FcpSignal *> get_signal(std::string name);
+
+    std::pair<std::string, FcpSignal *> get_signal(std::string name);
 	FcpDevice *get_device(int deviceIdentifier);
 
 private:
