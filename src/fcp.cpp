@@ -62,6 +62,8 @@ void Fcp::decompile(json j)
 
 std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata msg)
 {
+
+
     if (this->msgs.count(msg.sid))
     {
         return this->msgs.at(msg.sid)->decode_msg(msg);
@@ -73,10 +75,16 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
         decoded.first = this->devices[this->get_dev_name(decoded.second["dst"])].get_cmd_name(decoded.second["id"]);
         return decoded;
     }
-    else
-    {
-        throw std::exception();
+
+    int msg_id = GET_MSG_ID(msg.sid); 
+
+    for (auto common_msgs : this->common.msgs) {
+        if  (common_msgs.second->id == msg_id)
+            return common_msgs.second->decode_msg(msg);
     }
+    
+    throw std::exception();
+    
 }
 
 CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list)
