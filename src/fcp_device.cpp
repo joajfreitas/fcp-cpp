@@ -38,6 +38,10 @@ std::map<int, FcpMessage*> FcpDevice::decompile(json j)
         this->cfgs[el.key()] = fcp_config;
     }
 
+    for (auto const & [key, val]: this->cfgs) {
+        this->cfgs_names[val.id] = key;
+    }
+
     return msgs;
 }
 
@@ -58,4 +62,14 @@ FcpMessage* FcpDevice::get_message(int messageIdentifier)
             return msgs.second;
     }
     return NULL;
+}
+
+std::string FcpDevice::get_cfg_name(int cfg_id)
+{
+    int count = this->cfgs_names.count(cfg_id);
+
+    if (count)
+        return this->cfgs_names[cfg_id];
+    else
+        return "";
 }

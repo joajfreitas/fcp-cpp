@@ -23,10 +23,13 @@ class FcpDevice {
 		std::map<int, FcpMessage*> decompile(json j);
 
 		std::string get_cmd_name(int cmd_id);
+		std::string get_cfg_name (int cfg_if);
+
         FcpMessage *get_message(int messageIdentifier);
-	
+
 	private:
         std::map<int, std::string>  cmd_names;
+		std::map<int, std::string> cfgs_names;
 };
 
 #endif
