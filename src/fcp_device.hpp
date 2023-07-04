@@ -7,7 +7,7 @@
 #include "fcp_command.hpp"
 #include "fcp_message.hpp"
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 

@@ -1,7 +1,7 @@
 #ifndef __FCP_MESSAGE_H__
 #define __FCP_MESSAGE_H__
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 #include "candata.h"
 #include "fcp_signal.hpp"

@@ -15,7 +15,7 @@
 #include "fcp_config.hpp"
 #include "fcp_command.hpp"
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 

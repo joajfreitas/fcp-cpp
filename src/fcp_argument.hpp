@@ -1,7 +1,7 @@
 #ifndef __FCP_ARGUMENT_H__
 #define __FCP_ARGUMENT_H__
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
