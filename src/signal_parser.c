@@ -151,31 +151,32 @@ uint64_t decode_endian_conv(uint64_t word, fcp_signal_t signal) {
 }
 
 // clang format off
-#define decode_signal(_type) \
-_type fcp_decode_signal_ ## _type (CANdata msg, fcp_signal_t signal) { \
-    switch (signal.type) { \
-    case FCP_UNSIGNED: \
-        return (_type) apply_linear_ ## _type (  \
-                decode_endian_conv( (uint64_t) \
-                    can_word(msg), signal), signal); \
-    case FCP_SIGNED: \
-        return (_type) apply_linear_ ## _type( \
-                bitfield_sign_conv( \
-                    decode_endian_conv( \
-                        can_word(msg), signal), signal), signal);	 \
-    case FCP_FLOAT: \
-        return (_type) apply_linear_double( \
-                decode_endian_conv( \
-                    can_word(msg), signal), signal); \
-    case FCP_DOUBLE: \
-        return (_type) apply_linear_double( \
-                bitfield_sign_conv( \
-                    decode_endian_conv( \
-                        can_word(msg), signal), signal), signal); \
-    default: \
-        return 0; \
-    } \
-}
+#define decode_signal(_type)                                             \
+    _type fcp_decode_signal_##_type(CANdata msg, fcp_signal_t signal)    \
+    {                                                                    \
+        switch (signal.type) {                                           \
+        case FCP_UNSIGNED:                                               \
+            return (_type)apply_linear_##_type(                          \
+                decode_endian_conv( (uint64_t)                           \
+                    can_word(msg), signal), signal);                     \
+        case FCP_SIGNED:                                                 \
+            return (_type)apply_linear_##_type(                          \
+                bitfield_sign_conv(                                      \
+                    decode_endian_conv(                                  \
+                        can_word(msg), signal), signal), signal);	     \
+        case FCP_FLOAT:                                                  \
+            return (_type)apply_linear_double(                           \
+                decode_endian_conv(                                      \
+                    can_word(msg), signal), signal);                     \
+        case FCP_DOUBLE:                                                 \
+            return (_type)apply_linear_double(                           \
+                bitfield_sign_conv(                                      \
+                    decode_endian_conv(                                  \
+                        can_word(msg), signal), signal), signal);        \
+        default:                                                         \
+            return 0;                                                    \
+        }                                                                \
+}   
 
 fcp_type_generic(decode_signal)
 
