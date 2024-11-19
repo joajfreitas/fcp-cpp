@@ -1,5 +1,4 @@
-#include <stdio.h>
-
+#include <string.h>
 #include "candata.h"
 #include "signal_parser.h"
 
@@ -55,7 +54,12 @@ extern "C" {
 /** @def can_word(msg) (*((uint64_t *) (msg.data)))
  *  Convert CANdata to uint64_t word with data contents.
  */
-#define can_word(msg) (*((uint64_t*)(msg.data)))
+#define can_word(msg) (                     \
+    ((uint64_t)(msg.data[0]))       |       \
+    ((uint64_t)(msg.data[1]) << 16) |       \
+    ((uint64_t)(msg.data[2]) << 32) |       \
+    ((uint64_t)(msg.data[3]) << 48)         \
+)
 
 #define cast_double(ptr) *((double*)(ptr))
 #define cast_float(ptr) *((float*)(ptr))
@@ -179,7 +183,7 @@ fcp_type_generic(decode_signal)
     uint64_t fcp_encode_signal_##_type(_type value, fcp_signal_t signal)         \
     {                                                                            \
         signal.scale = 1 / signal.scale;                                         \
-        signal.offset = -signal.offset * signal.scale;                           \               \
+        signal.offset = -signal.offset * signal.scale;                           \
         uint64_t word = 0;                                                       \
         double d32 = 0, d64 = 0;                                                 \
         switch (signal.type) {                                                   \
@@ -191,17 +195,17 @@ fcp_type_generic(decode_signal)
                     apply_linear_int64_t((int64_t) value, signal), signal);      \
         case FCP_FLOAT:                                                          \
             d32 = apply_linear_double(value, signal);                            \
-            word = *(uint32_t*)&d32;                                             \
+            memcpy(&word, &d32, sizeof(uint32_t));                               \
             return encode_endian_conv(word, signal);                             \
         case FCP_DOUBLE:                                                         \
             d64 = apply_linear_double(value, signal);                            \
-            word = *(uint64_t*)&d64;                                             \
+            memcpy(&word, &d64, sizeof(uint64_t));                               \
             return encode_endian_conv(word, signal);                             \
         default:                                                                 \
             return 0;                                                            \
         }                                                                        \
-        return 0;                                                                \ 
-}                                                                                
+        return 0;                                                                \
+}                                                                                \
 
 fcp_type_generic(encode_signal)
 
