@@ -68,10 +68,7 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
     }
     else if (this->common_msgs.count(msg.sid))
     {
-        auto msg_handle = this->common_msgs.at(msg.sid);
-        auto decoded = msg_handle->decode_msg(msg);
-        decoded.first = this->devices[this->get_dev_name(decoded.second["dst"])].get_cmd_name(decoded.second["id"]);
-        return decoded;
+        return this->common_msgs.at(msg.sid)->decode_msg(msg);
     }
     else
     {
