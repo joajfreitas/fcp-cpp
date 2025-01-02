@@ -49,7 +49,13 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
 
             auto signal = el.second;
             auto name = el.first;
-            signals_list[name + std::to_string(mux_index)] = signal.decode_signal(msg);
+            if (signal.mux_count==1)
+            {
+                signals_list[name] = signal.decode_signal(msg);    
+            }
+            else{
+                signals_list[name + std::to_string(mux_index)] = signal.decode_signal(msg);
+            }
         }
     }
 
