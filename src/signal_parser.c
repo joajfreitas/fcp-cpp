@@ -122,7 +122,7 @@ int64_t bitfield_sign_conv(uint64_t bitfield, fcp_signal_t signal)
  * @fn uint64_t encode_endian_conv(uint64_t word, fcp_signal_t signal);
  * @brief Encode a signal with a given endianess
  * @param word The word to encode
- * @param signal The signal to encode
+ * @param signal The signal configuration
  */
 uint64_t encode_endian_conv(uint64_t word, fcp_signal_t signal);
 uint64_t encode_endian_conv(uint64_t word, fcp_signal_t signal) {
