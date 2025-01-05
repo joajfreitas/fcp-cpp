@@ -5,6 +5,10 @@
 
 #include "candata.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum _fcp_endianess {
     FCP_LITTLE,
     FCP_BIG
@@ -50,4 +54,7 @@ uint64_t fcp_encode_signal_int8_t(int8_t value, fcp_signal_t);
 uint64_t fcp_encode_signal_double(double value, fcp_signal_t);
 uint64_t fcp_encode_signal_float(float value, fcp_signal_t);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* ifndef __SIGNAL_PARSER_H__ */
