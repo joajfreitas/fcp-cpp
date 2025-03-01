@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <type_traits>
 
 #include "fcp.hpp"
 #include "fcp_device.hpp"
@@ -60,15 +61,26 @@ void Fcp::decompile(json j)
     return;
 }
 
+
 std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata msg)
 {
-    if (this->msgs.count(msg.sid))
-    {
-        return this->msgs.at(msg.sid)->decode_msg(msg);
+    uint32_t sid = 0;
+    switch (msg.type) {
+        case MESSAGE_TYPE::CAN_2_0A:
+            sid = static_cast<uint32_t>(msg.id.sid);
+            break;
+        case MESSAGE_TYPE::CAN_2_0B:
+            sid = msg.id.eid;
+            break;
     }
-    else if (this->common_msgs.count(msg.sid))
+
+    if (this->msgs.count(sid))
     {
-        return this->common_msgs.at(msg.sid)->decode_msg(msg);
+        return this->msgs.at(sid)->decode_msg(msg);
+    }
+    else if (this->common_msgs.count(sid))
+    {
+        return this->common_msgs.at(sid)->decode_msg(msg);
     }
     else
     {
@@ -76,26 +88,39 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
     }
 }
 
-CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list)
+CANdata Fcp::encode_msg(std::string dev_name, std::string msg_name, std::map<std::string, double> signals_list)
 {
 
     CANdata msg;
+    msg.type = MESSAGE_TYPE::CAN_2_0A;
 
-    if (dev_id == "common")
+    if (dev_name == "common")
     {
         for (auto const &[key, val] : this->common_msgs)
         {
-            if (val->name == msg_id)
+            if (val->name == msg_name)
             {
                 msg = this->common_msgs[key]->encode_msg(signals_list);
-                msg.sid = GET_SID(0, val->id);
+                if(this->common_msgs[key]->extended_frame) {
+                    msg.id.eid = msg.make_id (0, static_cast<uint32_t>(val->id));
+                    msg.type = MESSAGE_TYPE::CAN_2_0B;
+                } else {
+                    msg.id.sid = msg.make_id (0, static_cast<uint16_t>(val->id));
+                }
             }
         }
     }
     else
     {
-        msg = this->devices[dev_id].msgs[msg_id]->encode_msg(signals_list);
-        msg.sid = GET_SID(this->devices[dev_id].id, this->devices[dev_id].msgs[msg_id]->id);
+        msg = this->devices[dev_name].msgs[msg_name]->encode_msg(signals_list);
+        if (this->devices[dev_name].msgs[msg_name]->extended_frame)
+        {
+            msg.id.sid = msg.make_id (this->devices[dev_name].id, static_cast<uint32_t>(this->devices[dev_name].msgs[msg_name]->id));
+            msg.type = MESSAGE_TYPE::CAN_2_0B;
+        }
+        else {
+            msg.id.eid = msg.make_id (this->devices[dev_name].id, static_cast<uint16_t>(this->devices[dev_name].msgs[msg_name]->id));
+        }
     }
 
     return msg;
@@ -110,14 +135,15 @@ CANdata Fcp::encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_
     uint16_t _cmd_id = this->devices[dst_id].cmds[cmd_id].id;
 
     msg = this->common.msgs["send_cmd"]->encode_msg({{"id", _cmd_id}, {"dst", _dst_id}, {"arg1", arg1}, {"arg2", arg2}, {"arg3", arg3}});
-    msg.sid = GET_SID(this->devices[dev_id].id, 1);
+    msg.id.sid = GET_SID(this->devices[dev_id].id, 1);
+    msg.type = MESSAGE_TYPE::CAN_2_0A;
 
     return msg;
 }
 
-std::string Fcp::get_dev_name(uint16_t sid)
+std::string Fcp::get_dev_name(uint32_t sid)
 {
-    int dev_id = GET_DEV_ID(sid);
+    int dev_id = CANdata::get_dev_id(sid);
     int count = this->dev_names.count(dev_id);
 
     if (count)
@@ -126,24 +152,7 @@ std::string Fcp::get_dev_name(uint16_t sid)
         return "";
 }
 
-std::string Fcp::get_msg_name(uint16_t sid)
-{
-    int count = this->msgs.count(sid);
-    if (count)
-    {
-        return this->msgs[sid]->name;
-    }
-    else
-    {
-        int msg_id = GET_MSG_ID(sid);
-        int common_sid = GET_SID(0, msg_id);
-        count = this->common_msgs.count(common_sid);
-        if (count)
-            return this->common_msgs[common_sid]->name;
-        else
-            return "";
-    }
-}
+
 
 std::pair<std::string, FcpSignal *> Fcp::get_signal(std::string name)
 {
@@ -177,15 +186,8 @@ FcpDevice *Fcp::get_device(int deviceIdentifier)
     }
     return NULL;
 }
- 
-FcpMessage *Fcp::get_msg(uint16_t sid)
-{
-    if(msgs.count(sid)){
-        return msgs[sid];
-    }else {
-        return nullptr;
-    }
-}
+
+
 
 std::map<int, FcpMessage*> Fcp::get_msgs()
 {

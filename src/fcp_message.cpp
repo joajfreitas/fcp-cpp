@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "signal_parser.h"
+#include "signal_parser.hpp"
 
 void FcpMessage::decompile(json j)
 {
@@ -13,6 +13,10 @@ void FcpMessage::decompile(json j)
     this->frequency = j["frequency"];
     this->muxed = false;
     this->mux = "";
+
+    if (j.contains("extended_frame")) {
+        this->extended_frame = true;
+    }
 
     for (auto& el : j["signals"].items()) {
         FcpSignal fcp_signal;
@@ -65,6 +69,7 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
 CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg)
 {
     CANdata msg;
+
     uint64_t* ptr = (uint64_t*)&msg.data;
     uint64_t word = 0;
 
@@ -82,3 +87,4 @@ void FcpMessage::add_signal(FcpSignal new_signal)
 {
     this->signals_list[new_signal.name] = new_signal;
 }
+

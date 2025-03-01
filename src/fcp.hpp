@@ -46,8 +46,39 @@ public:
 	std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata);
 	CANdata encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list);
 	CANdata encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
-	std::string get_dev_name(uint16_t sid);
-	std::string get_msg_name(uint16_t sid);
+
+	std::string get_dev_name(uint32_t sid);
+
+	template <typename T>
+	std::string get_msg_name(T sid)
+	{
+		// new
+		FcpDevice *dev = get_device(CANdata::get_dev_id(sid));
+		if (dev == NULL) {
+			return "";
+		}
+		T msg_id = CANdata::get_msg_id(sid);
+
+		if (dev->msgs.count(msg_id))
+		{
+			return dev->msgs[msg_id]->name;
+		}
+		else
+		{
+			return "";
+		}
+	}
+
+	template <typename T>
+	FcpMessage *get_msg(T sid)
+	{
+		if(msgs.count(sid)){
+			return msgs[sid];
+		}else {
+			return nullptr;
+		}
+	}
+	
     
     FcpMessage * get_msg(uint16_t sid);
     std::map <int, FcpMessage*> get_msgs(void);

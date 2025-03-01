@@ -14,6 +14,7 @@ class FcpMessage {
 		int dlc;
 		int frequency;
         bool muxed = false;
+        bool extended_frame = false;
         std::string mux;
 		std::string name;
         std::map<std::string, FcpSignal> signals_list; // std::string -> nome do sinal
