@@ -26,7 +26,7 @@ public:
     std::string getEndianessReadInt(fcp_endianess_t endianess);
 
     uint16_t get_Start();
-    uint16_t get_Lenght();
+    uint16_t get_lenght();
     double get_scale();
     double get_offset();
     fcp_type_t get_type();
@@ -46,6 +46,18 @@ public:
     std::string unit;
     std::string comment;
     std::string name;
+
+    std::map <fcp_type_t, std::string> string_fcpType_map = {
+        { FCP_SIGNED, "signed"}, 
+        { FCP_UNSIGNED, "unsigned" },
+        { FCP_FLOAT, "float" },
+        { FCP_DOUBLE, "double" }
+    };
+
+    std::map <fcp_endianess_t, std::string> string_fcpEndianess_map = {
+        { FCP_BIG, "big_endian" },
+        { FCP_LITTLE, "little_endian" }
+    };
 
 private:
     fcp_signal_t signal;
