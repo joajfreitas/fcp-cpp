@@ -8,14 +8,14 @@
 using json = nlohmann::json;
 
 class FcpLog {
-	public:
-		int id;
-		std::string name;
-		int n_args;
-		std::string comment;
-		std::string string;
+public:
+    int id;
+    std::string name;
+    int n_args;
+    std::string comment;
+    std::string string;
 
-		void decompile(json j);
+    void decompile(json j);
 };
 
 #endif

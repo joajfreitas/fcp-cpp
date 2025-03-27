@@ -49,7 +49,7 @@ double FcpSignal::get_scale()
 {
     return this->signal.scale;
 }
-fcp_type_t FcpSignal::get_type() //mudar nome
+fcp_type_t FcpSignal::get_type() // mudar nome
 {
     return this->signal.type;
 }

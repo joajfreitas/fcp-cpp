@@ -9,10 +9,8 @@
 extern "C" {
 #endif
 
-typedef enum _fcp_endianess {
-    FCP_LITTLE,
-    FCP_BIG
-} fcp_endianess_t;
+typedef enum _fcp_endianess { FCP_LITTLE,
+    FCP_BIG } fcp_endianess_t;
 
 typedef enum _fcp_type {
     FCP_UNSIGNED,
@@ -22,12 +20,12 @@ typedef enum _fcp_type {
 } fcp_type_t;
 
 typedef struct _signal {
-	uint16_t start;
-	uint16_t length;
-	double scale;
-	double offset;
-	fcp_type_t type;
-	fcp_endianess_t endianess;
+    uint16_t start;
+    uint16_t length;
+    double scale;
+    double offset;
+    fcp_type_t type;
+    fcp_endianess_t endianess;
 } fcp_signal_t;
 
 uint64_t bitmask(unsigned length);

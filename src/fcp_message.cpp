@@ -31,7 +31,8 @@ void FcpMessage::decompile(json j)
     return;
 }
 
-std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CANdata msg)
+std::pair<std::string, std::map<std::string, double>>
+FcpMessage::decode_msg(CANdata msg)
 {
     std::map<std::string, double> signals_list;
 
@@ -53,11 +54,9 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
 
             auto signal = el.second;
             auto name = el.first;
-            if (signal.mux_count==1)
-            {
-                signals_list[name] = signal.decode_signal(msg);    
-            }
-            else{
+            if (signal.mux_count == 1) {
+                signals_list[name] = signal.decode_signal(msg);
+            } else {
                 signals_list[name + std::to_string(mux_index)] = signal.decode_signal(msg);
             }
         }
@@ -66,24 +65,25 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
     return std::make_pair(this->name, signals_list);
 }
 
-CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg, uint16_t dev_id)
+CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg,
+    uint16_t dev_id)
 {
     uint64_t word = 0;
 
     for (auto& el : this->signals_list)
         word |= el.second.encode_signal(decoded_msg[el.first]);
-    
-    uint16_t data[4] = {
-        static_cast<uint16_t>((word >>  0) & 0xFFFF),
+
+    uint16_t data[4] = { static_cast<uint16_t>((word >> 0) & 0xFFFF),
         static_cast<uint16_t>((word >> 16) & 0xFFFF),
         static_cast<uint16_t>((word >> 32) & 0xFFFF),
-        static_cast<uint16_t>((word >> 48) & 0xFFFF)
-    };
+        static_cast<uint16_t>((word >> 48) & 0xFFFF) };
 
     if (this->extended_frame) {
-        return CANdata::MakeExtendedIdFrame(dev_id, static_cast<uint32_t> (this->id), this->dlc, data);
+        return CANdata::MakeExtendedIdFrame(dev_id, static_cast<uint32_t>(this->id),
+            this->dlc, data);
     } else {
-        return CANdata::MakeStandardIdFrame(dev_id, static_cast<uint16_t> (this->id), this->dlc, data);
+        return CANdata::MakeStandardIdFrame(dev_id, static_cast<uint16_t>(this->id),
+            this->dlc, data);
     }
 }
 
@@ -91,4 +91,3 @@ void FcpMessage::add_signal(FcpSignal new_signal)
 {
     this->signals_list[new_signal.name] = new_signal;
 }
-

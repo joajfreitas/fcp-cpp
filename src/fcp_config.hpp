@@ -8,15 +8,15 @@
 using json = nlohmann::json;
 
 class FcpConfig {
-	public:
-		int id;
-		std::string name;
-        std::string comment;
-		
-		void decompile(json j);
-        void setId(int id);
-        void setName(std::string name);
-        void setComment(std::string comment);
+public:
+    int id;
+    std::string name;
+    std::string comment;
+
+    void decompile(json j);
+    void setId(int id);
+    void setName(std::string name);
+    void setComment(std::string comment);
 };
 
 #endif
