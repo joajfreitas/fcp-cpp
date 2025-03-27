@@ -49,7 +49,6 @@ class FcpSignal {
 
 	private:
 		fcp_signal_t signal;
-
 };
 
 #endif

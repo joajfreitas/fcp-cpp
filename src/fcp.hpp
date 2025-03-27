@@ -6,6 +6,7 @@
 #include <string.h>
 #include <map>
 #include <iostream>
+#include <optional>
 
 #include "fcp_common.hpp"
 #include "fcp_device.hpp"
@@ -44,15 +45,14 @@ public:
 	void decompile(json j);
 
 	std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata);
-	CANdata encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list);
-	CANdata encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
+	std::optional<CANdata>	encode_msg(std::string dev_name, std::string msg_name, std::map<std::string, double> signals_list);
+	CANdata encode_cmd(std::string dev_name, std::string cmd_name, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 
 	std::string get_dev_name(uint32_t sid);
 
 	template <typename T>
 	std::string get_msg_name(T sid)
 	{
-		// new
 		FcpDevice *dev = get_device(CANdata::get_dev_id(sid));
 		if (dev == NULL) {
 			return "";
@@ -94,3 +94,4 @@ private:
 };
 
 #endif
+ 

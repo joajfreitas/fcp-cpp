@@ -66,21 +66,25 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
     return std::make_pair(this->name, signals_list);
 }
 
-CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg)
+CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg, uint16_t dev_id)
 {
-    CANdata msg;
-
-    uint64_t* ptr = (uint64_t*)&msg.data;
     uint64_t word = 0;
-
-    msg.dlc = this->dlc;
 
     for (auto& el : this->signals_list)
         word |= el.second.encode_signal(decoded_msg[el.first]);
+    
+    uint16_t data[4] = {
+        static_cast<uint16_t>((word >>  0) & 0xFFFF),
+        static_cast<uint16_t>((word >> 16) & 0xFFFF),
+        static_cast<uint16_t>((word >> 32) & 0xFFFF),
+        static_cast<uint16_t>((word >> 48) & 0xFFFF)
+    };
 
-    *ptr = word;
-
-    return msg;
+    if (this->extended_frame) {
+        return CANdata::MakeExtendedIdFrame(dev_id, static_cast<uint32_t> (this->id), this->dlc, data);
+    } else {
+        return CANdata::MakeStandardIdFrame(dev_id, static_cast<uint16_t> (this->id), this->dlc, data);
+    }
 }
 
 void FcpMessage::add_signal(FcpSignal new_signal)

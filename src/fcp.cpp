@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <type_traits>
+#include <optional>
 
 #include "fcp.hpp"
 #include "fcp_device.hpp"
@@ -61,18 +62,9 @@ void Fcp::decompile(json j)
     return;
 }
 
-
 std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata msg)
 {
-    uint32_t sid = 0;
-    switch (msg.type) {
-        case MESSAGE_TYPE::CAN_2_0A:
-            sid = static_cast<uint32_t>(msg.id.sid);
-            break;
-        case MESSAGE_TYPE::CAN_2_0B:
-            sid = msg.id.eid;
-            break;
-    }
+    uint32_t sid = msg.get_message_id();
 
     if (this->msgs.count(sid))
     {
@@ -88,55 +80,38 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
     }
 }
 
-CANdata Fcp::encode_msg(std::string dev_name, std::string msg_name, std::map<std::string, double> signals_list)
+std::optional<CANdata> Fcp::encode_msg(std::string dev_name, std::string msg_name, std::map<std::string, double> signals_list)
 {
-
-    CANdata msg;
-    msg.type = MESSAGE_TYPE::CAN_2_0A;
-
     if (dev_name == "common")
     {
         for (auto const &[key, val] : this->common_msgs)
         {
             if (val->name == msg_name)
             {
-                msg = this->common_msgs[key]->encode_msg(signals_list);
-                if(this->common_msgs[key]->extended_frame) {
-                    msg.id.eid = msg.make_id (0, static_cast<uint32_t>(val->id));
-                    msg.type = MESSAGE_TYPE::CAN_2_0B;
-                } else {
-                    msg.id.sid = msg.make_id (0, static_cast<uint16_t>(val->id));
-                }
+                return common_msgs[key]->encode_msg(signals_list, 0);
             }
         }
     }
     else
     {
-        msg = this->devices[dev_name].msgs[msg_name]->encode_msg(signals_list);
-        if (this->devices[dev_name].msgs[msg_name]->extended_frame)
-        {
-            msg.id.sid = msg.make_id (this->devices[dev_name].id, static_cast<uint32_t>(this->devices[dev_name].msgs[msg_name]->id));
-            msg.type = MESSAGE_TYPE::CAN_2_0B;
+        if (devices.count(dev_name) == 0 || devices[dev_name].msgs.count(msg_name) == 0) {
+            throw std::exception();
         }
-        else {
-            msg.id.eid = msg.make_id (this->devices[dev_name].id, static_cast<uint16_t>(this->devices[dev_name].msgs[msg_name]->id));
-        }
+
+        return this->devices[dev_name].msgs[msg_name]->encode_msg(signals_list, this->devices[dev_name].id);
     }
 
-    return msg;
+    return std::nullopt;
 }
 
 CANdata Fcp::encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3)
 {
 
-    CANdata msg;
-
     uint16_t _dst_id = this->devices[dst_id].id;
     uint16_t _cmd_id = this->devices[dst_id].cmds[cmd_id].id;
 
-    msg = this->common.msgs["send_cmd"]->encode_msg({{"id", _cmd_id}, {"dst", _dst_id}, {"arg1", arg1}, {"arg2", arg2}, {"arg3", arg3}});
-    msg.id.sid = GET_SID(this->devices[dev_id].id, 1);
-    msg.type = MESSAGE_TYPE::CAN_2_0A;
+    CANdata msg = this->common.msgs["send_cmd"]->encode_msg({{"id", _cmd_id}, {"dst", _dst_id}, {"arg1", arg1}, {"arg2", arg2}, {"arg3", arg3}}, this->devices[dev_id].id);
+    msg.id.sid = CANdata::make_id(this->devices[dev_id].id, 1);
 
     return msg;
 }
@@ -151,8 +126,6 @@ std::string Fcp::get_dev_name(uint32_t sid)
     else
         return "";
 }
-
-
 
 std::pair<std::string, FcpSignal *> Fcp::get_signal(std::string name)
 {
@@ -173,7 +146,6 @@ std::pair<std::string, FcpSignal *> Fcp::get_signal(std::string name)
     return std::make_pair("", nullptr);
 }
 
-// Freitas
 FcpDevice *Fcp::get_device(int deviceIdentifier)
 {
 
@@ -186,8 +158,6 @@ FcpDevice *Fcp::get_device(int deviceIdentifier)
     }
     return NULL;
 }
-
-
 
 std::map<int, FcpMessage*> Fcp::get_msgs()
 {
