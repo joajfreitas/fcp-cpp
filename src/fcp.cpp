@@ -63,7 +63,7 @@ void Fcp::decompile(json j)
 
 decoded_msg Fcp::decode_msg(CANdata msg)
 {
-    uint32_t sid = msg.get_message_id();
+    uint32_t sid = msg.get_sid();
 
     if (this->msgs.count(sid)) {
         return this->msgs.at(sid)->decode_msg(msg);
@@ -95,24 +95,22 @@ std::optional<CANdata> Fcp::encode_msg(std::string dev_name, std::string msg_nam
     return std::nullopt;
 }
 
-CANdata Fcp::encode_cmd(std::string dev_id, std::string cmd_id,
-    std::string dst_id, uint16_t arg1, uint16_t arg2,
+CANdata Fcp::encode_cmd(std::string dev_name, std::string cmd_name,
+    std::string dst_name, uint16_t arg1, uint16_t arg2,
     uint16_t arg3)
 {
-    uint16_t _dst_id = this->devices[dst_id].id;
-    uint16_t _cmd_id = this->devices[dst_id].cmds[cmd_id].id;
+    uint16_t _dst_id = this->devices[dst_name].id;
+    uint16_t _cmd_id = this->devices[dst_name].cmds[cmd_name].id;
+    uint16_t dev_id = this->devices[dev_name].id;
 
-    CANdata msg = this->common.msgs["send_cmd"]->encode_msg({ { "id", _cmd_id },
-                                                                { "dst", _dst_id },
-                                                                { "arg1", arg1 },
-                                                                { "arg2", arg2 },
-                                                                { "arg3", arg3 } },
-        this->devices[dev_id].id);
-    msg.id.sid = CANdata::make_id(this->devices[dev_id].id, 1);
+    std::map<std::string, double> signal_map = { { "id", _cmd_id },
+        { "dst", _dst_id },
+        { "arg1", arg1 },
+        { "arg2", arg2 },
+        { "arg3", arg3 } };
 
-    return msg;
+    return common.msgs["send_cmd"]->encode_cmd(signal_map, dev_id, 1);
 }
-
 
 FcpDevice* Fcp::get_device(int deviceIdentifier)
 {
@@ -132,7 +130,7 @@ FcpDevice Fcp::get_common()
 
 std::string Fcp::get_dev_name(uint32_t sid)
 {
-    int dev_id = CANdata::get_dev_id(sid);
+    int dev_id = get_dev_id(sid);
     int count = this->dev_names.count(dev_id);
 
     if (count)
@@ -141,7 +139,7 @@ std::string Fcp::get_dev_name(uint32_t sid)
         return "";
 }
 
-std::map <int, FcpMessage*> Fcp::get_msgs(void)
+std::map<int, FcpMessage*> Fcp::get_msgs(void)
 {
     return this->msgs;
 }
@@ -160,4 +158,24 @@ std::pair<std::string, FcpSignal*> Fcp::get_signal(std::string name)
     }
 
     return std::make_pair("", nullptr);
+}
+
+std::string Fcp::get_msg_name(uint32_t sid)
+{
+    FcpDevice* dev = get_device((get_dev_id(sid)));
+
+    if (dev == NULL) {
+        return "";
+    }
+
+    return dev->get_message_name(get_msg_id(sid));
+}
+
+FcpMessage* Fcp::get_msg(uint32_t sid)
+{
+    FcpDevice* dev = get_device((get_dev_id(sid)));
+    if (dev == NULL) {
+        return nullptr;
+    }
+    return dev->get_message(get_msg_id(sid));
 }

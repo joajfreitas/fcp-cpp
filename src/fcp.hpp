@@ -47,6 +47,7 @@ public:
     CANdata encode_cmd(std::string dev_name, std::string cmd_name, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 
     std::string get_dev_name(uint32_t sid);
+    std::string get_msg_name(uint32_t sid);
 
     std::map<int, FcpMessage*> get_msgs(void);
 
@@ -54,33 +55,8 @@ public:
     FcpDevice* get_device(int deviceIdentifier);
     FcpDevice get_common();
 
+    FcpMessage* get_msg(uint32_t sid);
 
-
-    template <typename T>
-    std::string get_msg_name(T sid)
-    {
-        FcpDevice* dev = get_device(CANdata::get_dev_id(sid));
-        if (dev == NULL) {
-            return "";
-        }
-        T msg_id = CANdata::get_msg_id(sid);
-
-        if (dev->msgs.count(msg_id)) {
-            return dev->msgs[msg_id]->name;
-        } else {
-            return "";
-        }
-    }
-
-    template <typename T>
-    FcpMessage* get_msg(T sid)
-    {
-        if (msgs.count(sid)) {
-            return msgs[sid];
-        } else {
-            return nullptr;
-        }
-    }
 private:
     FcpDevice common;
 

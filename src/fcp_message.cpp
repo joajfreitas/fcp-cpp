@@ -73,18 +73,33 @@ CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg,
     for (auto& el : this->signals_list)
         word |= el.second.encode_signal(decoded_msg[el.first]);
 
-    uint16_t data[4] = { static_cast<uint16_t>((word >> 0) & 0xFFFF),
+    std::array<uint16_t, 4> data = {
+        static_cast<uint16_t>((word >> 0) & 0xFFFF),
         static_cast<uint16_t>((word >> 16) & 0xFFFF),
         static_cast<uint16_t>((word >> 32) & 0xFFFF),
-        static_cast<uint16_t>((word >> 48) & 0xFFFF) };
+        static_cast<uint16_t>((word >> 48) & 0xFFFF)
+    };
 
-    if (this->extended_frame) {
-        return CANdata::MakeExtendedIdFrame(dev_id, static_cast<uint32_t>(this->id),
-            this->dlc, data);
-    } else {
-        return CANdata::MakeStandardIdFrame(dev_id, static_cast<uint16_t>(this->id),
-            this->dlc, data);
-    }
+    return CANdata(dev_id, this->id, this->dlc, data, this->extended_frame);
+}
+
+CANdata FcpMessage::encode_cmd(std::map<std::string, double> decoded_msg, uint8_t dev_id, uint32_t msg_id)
+{
+    uint64_t word = 0;
+    // Encode data based on command message
+    for (auto& el : this->signals_list)
+        word |= el.second.encode_signal(decoded_msg[el.first]);
+
+    // Create the CAN data object
+    std::array<uint16_t, 4> data = {
+        static_cast<uint16_t>((word >> 0) & 0xFFFF),
+        static_cast<uint16_t>((word >> 16) & 0xFFFF),
+        static_cast<uint16_t>((word >> 32) & 0xFFFF),
+        static_cast<uint16_t>((word >> 48) & 0xFFFF)
+    };
+
+    // Create the CANdata object
+    return CANdata(dev_id, msg_id, this->dlc, data, this->extended_frame);
 }
 
 void FcpMessage::add_signal(FcpSignal new_signal)

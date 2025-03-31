@@ -55,7 +55,7 @@ double FcpSignal::get_scale()
     return this->signal.scale;
 }
 
-fcp_type_t FcpSignal::get_type() 
+fcp_type_t FcpSignal::get_type()
 {
     return this->signal.type;
 }

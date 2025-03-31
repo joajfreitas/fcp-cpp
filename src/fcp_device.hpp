@@ -24,6 +24,7 @@ public:
 
     std::string get_cmd_name(int cmd_id);
     FcpMessage* get_message(int messageIdentifier);
+    std::string get_message_name(int messageIdentifier);
 
 private:
     std::map<int, std::string> cmd_names;

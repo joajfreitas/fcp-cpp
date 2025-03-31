@@ -47,14 +47,14 @@ public:
     std::string comment;
     std::string name;
 
-    std::map <fcp_type_t, std::string> string_fcpType_map = {
-        { FCP_SIGNED, "signed"}, 
+    std::map<fcp_type_t, std::string> string_fcpType_map = {
+        { FCP_SIGNED, "signed" },
         { FCP_UNSIGNED, "unsigned" },
         { FCP_FLOAT, "float" },
         { FCP_DOUBLE, "double" }
     };
 
-    std::map <fcp_endianess_t, std::string> string_fcpEndianess_map = {
+    std::map<fcp_endianess_t, std::string> string_fcpEndianess_map = {
         { FCP_BIG, "big_endian" },
         { FCP_LITTLE, "little_endian" }
     };

@@ -55,8 +55,7 @@ extern "C" {
  *  Convert CANdata to uint64_t word with data contents.
  */
 #define can_word(msg) ( \
-    ((uint64_t)(msg.data[0])) | ((uint64_t)(msg.data[1]) << 16) | ((uint64_t)(msg.data[2]) << 32) | ((uint64_t)(msg.data[3]) << 48))
-
+    ((uint64_t)(msg.get_data(0))) | ((uint64_t)(msg.get_data(1)) << 16) | ((uint64_t)(msg.get_data(2)) << 32) | ((uint64_t)(msg.get_data(3)) << 48))
 #define cast_double(ptr) *((double*)(ptr))
 #define cast_float(ptr) *((float*)(ptr))
 
