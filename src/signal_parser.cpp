@@ -12,17 +12,17 @@ extern "C" {
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
 // define a function for every tipe
-#define fcp_type_generic(function)                  \
-    function(uint64_t)                              \
-        function(uint32_t)                          \
-            function(uint16_t)                      \
-                function(uint8_t)                   \
-                    function(int64_t)               \
-                        function(int32_t)           \
-                            function(int16_t)       \
-                                function(int8_t)    \
-                                    function(float) \
-                                        function(double)
+#define fcp_type_generic(function)   \
+function(uint64_t)                   \
+function(uint32_t)                   \
+function(uint16_t)                   \
+function(uint8_t)                    \
+function(int64_t)                    \
+function(int32_t)                    \
+function(int16_t)                    \
+function(int8_t)                     \
+function(float)                      \
+function(double)
 
 /* Taken from glib source */
 
@@ -52,7 +52,7 @@ extern "C" {
 #define get_bit(word, pos) (word >> pos) & 0x1
 
 /** @def can_word(msg) (*((uint64_t *) (msg.data)))
- *  Convert CANdata to uint64_t word with data contents.
+ *  Convert CanData to uint64_t word with data contents.
  */
 #define can_word(msg) ( \
     ((uint64_t)(msg.get_data(0))) | ((uint64_t)(msg.get_data(1)) << 16) | ((uint64_t)(msg.get_data(2)) << 32) | ((uint64_t)(msg.get_data(3)) << 48))
@@ -147,7 +147,7 @@ uint64_t decode_endian_conv(uint64_t word, fcp_signal_t signal)
 
 // clang format off
 #define decode_signal(_type)                                          \
-    _type fcp_decode_signal_##_type(CANdata msg, fcp_signal_t signal) \
+    _type fcp_decode_signal_##_type(CanData msg, fcp_signal_t signal) \
     {                                                                 \
         switch (signal.type) {                                        \
         case FCP_UNSIGNED:                                            \

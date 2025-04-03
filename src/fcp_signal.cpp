@@ -79,7 +79,7 @@ void FcpSignal::decompile(json j)
     return;
 }
 
-double FcpSignal::decode_signal(CANdata msg)
+double FcpSignal::decode_signal(CanData msg)
 {
     return fcp_decode_signal_double(msg, this->signal);
 }
@@ -91,7 +91,7 @@ uint64_t FcpSignal::encode_signal(double signal)
 
 fcp_type_t FcpSignal::getType(std::string type)
 {
-    for (auto const& [key, val] : string_fcpType_map) {
+    for (auto const& [key, val] : StringFcpTypeMap) {
         if (val == type) {
             return key;
         }
@@ -101,7 +101,7 @@ fcp_type_t FcpSignal::getType(std::string type)
 
 fcp_endianess_t FcpSignal::getEndianess(std::string byte_order)
 {
-    for (auto const& [key, val] : string_fcpEndianess_map) {
+    for (auto const& [key, val] : StringFcpEndianessMap) {
         if (val == byte_order) {
             return key;
         }

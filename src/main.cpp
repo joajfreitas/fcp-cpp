@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
         .endianess = LITTLE,
     };
 
-    CANdata msg = {
+    CanData msg = {
         .sid = 9 + 10 * 32, .dlc = 8, .data = { 10000, 10000, 10000, 10000 }
     };
 

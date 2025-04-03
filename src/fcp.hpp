@@ -19,8 +19,8 @@
 #include "json.hpp"
 
 using json = nlohmann::json;
-using signal_map = std::map<std::string, double>;
-using decoded_msg = std::pair<std::string, signal_map>;
+using SignalMap = std::map<std::string, double>;
+using DecodedMsg = std::pair<std::string, SignalMap>;
 
 #define FILE_MAX_SIZE 1048576
 
@@ -42,9 +42,9 @@ public:
     void decompile_file(std::string filename);
     void decompile(json j);
 
-    decoded_msg decode_msg(CANdata);
-    std::optional<CANdata> encode_msg(std::string dev_name, std::string msg_name, signal_map signals);
-    CANdata encode_cmd(std::string dev_name, std::string cmd_name, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
+    DecodedMsg decode_msg(CanData);
+    std::optional<CanData> encode_msg(std::string dev_name, std::string msg_name, SignalMap signals);
+    std::optional<CanData> encode_cmd(std::string dev_name, std::string cmd_name, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 
     std::string get_dev_name(uint32_t sid);
     std::string get_msg_name(uint32_t sid);

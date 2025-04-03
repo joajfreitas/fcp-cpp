@@ -16,7 +16,7 @@ using json = nlohmann::json;
 class FcpSignal {
 public:
     void decompile(json j);
-    double decode_signal(CANdata msg);
+    double decode_signal(CanData msg);
     uint64_t encode_signal(double signal);
     fcp_type_t getType(std::string type);
     fcp_endianess_t getEndianess(std::string type);
@@ -47,14 +47,14 @@ public:
     std::string comment;
     std::string name;
 
-    std::map<fcp_type_t, std::string> string_fcpType_map = {
+    std::map<fcp_type_t, std::string> StringFcpTypeMap = {
         { FCP_SIGNED, "signed" },
         { FCP_UNSIGNED, "unsigned" },
         { FCP_FLOAT, "float" },
         { FCP_DOUBLE, "double" }
     };
 
-    std::map<fcp_endianess_t, std::string> string_fcpEndianess_map = {
+    std::map<fcp_endianess_t, std::string> StringFcpEndianessMap = {
         { FCP_BIG, "big_endian" },
         { FCP_LITTLE, "little_endian" }
     };

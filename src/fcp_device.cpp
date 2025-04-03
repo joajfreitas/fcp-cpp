@@ -57,14 +57,14 @@ FcpMessage* FcpDevice::get_message(int messageIdentifier)
         if (msgs.second->id == messageIdentifier)
             return msgs.second;
     }
-    return NULL;
+    return nullptr;
 }
 
 std::string FcpDevice::get_message_name(int messageIdentifier)
 {
     FcpMessage* msg = get_message(messageIdentifier);
 
-    if (msg != NULL) {
+    if (msg != nullptr) {
         return msg->name;
     }
 

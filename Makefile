@@ -30,13 +30,13 @@ fcp-cpp.so: $(OBJECTS)
 
 # Format all C/C++ source and header files, excluding some patterns
 clang-format:
-	@ find "$(shell pwd)"/src "$(shell pwd)"/tests \
+	@ find "$(shell pwd)"/src "$(shell pwd)"/tests -not -name "signal_parser*" \
 		| grep --regexp='.*\.\(cpp\|hpp\|c\|h\)$$' \
 		| xargs -P $(shell nproc) -I "{}" sh -c 'echo "CLANG-Format -> {}" && clang-format -i -style=Webkit "{}" || true'
 
 # Optional: to check if everything is formatted (CI/linting)
 clang-format-check:
-	@ find "$(shell pwd)"/src "$(shell pwd)"/tests \
+	@ find "$(shell pwd)"/src "$(shell pwd)"/tests -not -name "signal_parser*" \
 		| grep --regexp='.*\.\(cpp\|hpp\|c\|h\)$$' \
 		| xargs -P $(shell nproc) -I "{}" sh -c 'echo "CLANG-Format [CHECK] -> {}" && clang-format --dry-run -Werror -style=Webkit "{}"'
 
