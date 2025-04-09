@@ -15,7 +15,7 @@ void FcpMessage::decompile(json j)
     this->mux = "";
 
     if (j.contains("extended_frame")) {
-        this->extended_frame = true;
+        this->extended_frame = j["extended_frame"];
     }
 
     for (auto& el : j["signals"].items()) {
