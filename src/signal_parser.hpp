@@ -32,16 +32,16 @@ typedef struct _signal {
 
 uint64_t bitmask(unsigned length);
 
-uint64_t fcp_decode_signal_uint64_t(CANdata msg, fcp_signal_t signal);
-uint32_t fcp_decode_signal_uint32_t(CANdata msg, fcp_signal_t signal);
-uint16_t fcp_decode_signal_uint16_t(CANdata msg, fcp_signal_t signal);
-uint8_t fcp_decode_signal_uint8_t(CANdata msg, fcp_signal_t signal);
-int64_t fcp_decode_signal_int64_t(CANdata msg, fcp_signal_t signal);
-int32_t fcp_decode_signal_int32_t(CANdata msg, fcp_signal_t signal);
-int16_t fcp_decode_signal_int16_t(CANdata msg, fcp_signal_t signal);
-int8_t fcp_decode_signal_int8_t(CANdata msg, fcp_signal_t signal);
-double fcp_decode_signal_double(CANdata msg, fcp_signal_t signal);
-float fcp_decode_signal_float(CANdata msg, fcp_signal_t signal);
+uint64_t fcp_decode_signal_uint64_t(CanData msg, fcp_signal_t signal);
+uint32_t fcp_decode_signal_uint32_t(CanData msg, fcp_signal_t signal);
+uint16_t fcp_decode_signal_uint16_t(CanData msg, fcp_signal_t signal);
+uint8_t fcp_decode_signal_uint8_t(CanData msg, fcp_signal_t signal);
+int64_t fcp_decode_signal_int64_t(CanData msg, fcp_signal_t signal);
+int32_t fcp_decode_signal_int32_t(CanData msg, fcp_signal_t signal);
+int16_t fcp_decode_signal_int16_t(CanData msg, fcp_signal_t signal);
+int8_t fcp_decode_signal_int8_t(CanData msg, fcp_signal_t signal);
+double fcp_decode_signal_double(CanData msg, fcp_signal_t signal);
+float fcp_decode_signal_float(CanData msg, fcp_signal_t signal);
 
 uint64_t fcp_encode_signal_uint64_t(uint64_t value, fcp_signal_t);
 uint64_t fcp_encode_signal_uint32_t(uint32_t value, fcp_signal_t);

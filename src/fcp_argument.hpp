@@ -6,12 +6,12 @@
 using json = nlohmann::json;
 
 class FcpArgument {
-	public:
-		int id;
-		std::string name;
-		std::string comment;
+public:
+    int id;
+    std::string name;
+    std::string comment;
 
-		void decompile(json j);
+    void decompile(json j);
 };
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "signal_parser.h"
+#include "signal_parser.hpp"
 
 void FcpMessage::decompile(json j)
 {
@@ -13,6 +13,10 @@ void FcpMessage::decompile(json j)
     this->frequency = j["frequency"];
     this->muxed = false;
     this->mux = "";
+
+    if (j.contains("extended_frame")) {
+        this->extended_frame = j["extended_frame"];
+    }
 
     for (auto& el : j["signals"].items()) {
         FcpSignal fcp_signal;
@@ -27,7 +31,8 @@ void FcpMessage::decompile(json j)
     return;
 }
 
-std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CANdata msg)
+std::pair<std::string, std::map<std::string, double>>
+FcpMessage::decode_msg(CanData msg)
 {
     std::map<std::string, double> signals_list;
 
@@ -49,11 +54,9 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
 
             auto signal = el.second;
             auto name = el.first;
-            if (signal.mux_count==1)
-            {
-                signals_list[name] = signal.decode_signal(msg);    
-            }
-            else{
+            if (signal.mux_count == 1) {
+                signals_list[name] = signal.decode_signal(msg);
+            } else {
                 signals_list[name + std::to_string(mux_index)] = signal.decode_signal(msg);
             }
         }
@@ -62,20 +65,39 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
     return std::make_pair(this->name, signals_list);
 }
 
-CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg)
+CanData FcpMessage::encode_msg(std::map<std::string, double> decoded_msg,
+    uint16_t dev_id)
 {
-    CANdata msg;
-    uint64_t* ptr = (uint64_t*)&msg.data;
     uint64_t word = 0;
-
-    msg.dlc = this->dlc;
 
     for (auto& el : this->signals_list)
         word |= el.second.encode_signal(decoded_msg[el.first]);
 
-    *ptr = word;
+    std::array<uint16_t, 4> data = {
+        static_cast<uint16_t>((word >> 0) & 0xFFFF),
+        static_cast<uint16_t>((word >> 16) & 0xFFFF),
+        static_cast<uint16_t>((word >> 32) & 0xFFFF),
+        static_cast<uint16_t>((word >> 48) & 0xFFFF)
+    };
 
-    return msg;
+    return CanData(dev_id, this->id, this->dlc, data, this->extended_frame);
+}
+
+CanData FcpMessage::encode_cmd(std::map<std::string, double> decoded_msg, uint8_t dev_id, uint32_t msg_id)
+{
+    uint64_t word = 0;
+    // Encode data based on command message
+    for (auto& el : this->signals_list)
+        word |= el.second.encode_signal(decoded_msg[el.first]);
+
+    std::array<uint16_t, 4> data = {
+        static_cast<uint16_t>((word >> 0) & 0xFFFF),
+        static_cast<uint16_t>((word >> 16) & 0xFFFF),
+        static_cast<uint16_t>((word >> 32) & 0xFFFF),
+        static_cast<uint16_t>((word >> 48) & 0xFFFF)
+    };
+
+    return CanData(dev_id, msg_id, this->dlc, data, this->extended_frame);
 }
 
 void FcpMessage::add_signal(FcpSignal new_signal)

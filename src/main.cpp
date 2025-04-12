@@ -13,10 +13,8 @@ int main(int argc, char* argv[])
         .endianess = LITTLE,
     };
 
-    CANdata msg = {
-        .sid = 9 + 10 * 32,
-        .dlc = 8,
-        .data = { 10000, 10000, 10000, 10000 }
+    CanData msg = {
+        .sid = 9 + 10 * 32, .dlc = 8, .data = { 10000, 10000, 10000, 10000 }
     };
 
     printf("%f\n", fcp_decode_signal_double(msg, signal));

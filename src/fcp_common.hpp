@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 class FcpCommon {
-	public:
-		uint16_t id;
+public:
+    uint16_t id;
 };
 
 #endif

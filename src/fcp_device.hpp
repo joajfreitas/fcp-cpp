@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 
-#include "fcp_config.hpp"
 #include "fcp_command.hpp"
+#include "fcp_config.hpp"
 #include "fcp_message.hpp"
 
 #include "json.hpp"
@@ -12,21 +12,22 @@
 using json = nlohmann::json;
 
 class FcpDevice {
-	public:
-		int id;
-		std::string name;
-		std::map<std::string, FcpMessage *> msgs;
-		std::map<std::string, FcpCommand> cmds;
-		std::map<std::string, FcpConfig> cfgs;
-        void setCmdNames(std::pair<int, std::string>);
-		
-		std::map<int, FcpMessage*> decompile(json j);
+public:
+    int id;
+    std::string name;
+    std::map<std::string, FcpMessage*> msgs;
+    std::map<std::string, FcpCommand> cmds;
+    std::map<std::string, FcpConfig> cfgs;
+    void setCmdNames(std::pair<int, std::string>);
 
-		std::string get_cmd_name(int cmd_id);
-        FcpMessage *get_message(int messageIdentifier);
-	
-	private:
-        std::map<int, std::string>  cmd_names;
+    std::map<int, FcpMessage*> decompile(json j);
+
+    std::string get_cmd_name(int cmd_id);
+    FcpMessage* get_message(int messageIdentifier);
+    std::string get_message_name(int messageIdentifier);
+
+private:
+    std::map<int, std::string> cmd_names;
 };
 
 #endif

@@ -24,6 +24,7 @@ void FcpSignal::set_type(fcp_type_t type)
 {
     this->signal.type = type;
 }
+
 void FcpSignal::set_endianess(fcp_endianess_t endianess)
 {
     this->signal.endianess = endianess;
@@ -33,23 +34,28 @@ uint16_t FcpSignal::get_Start()
 {
     return this->signal.start;
 }
+
 fcp_endianess_t FcpSignal::get_endianess()
 {
     return this->signal.endianess;
 }
-uint16_t FcpSignal::get_Lenght()
+
+uint16_t FcpSignal::get_lenght()
 {
     return this->signal.length;
 }
+
 double FcpSignal::get_offset()
 {
     return this->signal.offset;
 }
+
 double FcpSignal::get_scale()
 {
     return this->signal.scale;
 }
-fcp_type_t FcpSignal::get_type() //mudar nome
+
+fcp_type_t FcpSignal::get_type()
 {
     return this->signal.type;
 }
@@ -73,7 +79,7 @@ void FcpSignal::decompile(json j)
     return;
 }
 
-double FcpSignal::decode_signal(CANdata msg)
+double FcpSignal::decode_signal(CanData msg)
 {
     return fcp_decode_signal_double(msg, this->signal);
 }
@@ -85,22 +91,20 @@ uint64_t FcpSignal::encode_signal(double signal)
 
 fcp_type_t FcpSignal::getType(std::string type)
 {
-
-    if (type == "signed")
-        return FCP_SIGNED;
-    else if (type == "float")
-        return FCP_FLOAT;
-    else if (type == "double")
-        return FCP_DOUBLE;
-    else
-        return FCP_UNSIGNED;
+    for (auto const& [key, val] : StringFcpTypeMap) {
+        if (val == type) {
+            return key;
+        }
+    }
+    return FCP_UNSIGNED;
 }
 
 fcp_endianess_t FcpSignal::getEndianess(std::string byte_order)
 {
-
-    if (byte_order == "big_endian")
-        return FCP_BIG;
-    else
-        return FCP_LITTLE;
+    for (auto const& [key, val] : StringFcpEndianessMap) {
+        if (val == byte_order) {
+            return key;
+        }
+    }
+    return FCP_LITTLE;
 }

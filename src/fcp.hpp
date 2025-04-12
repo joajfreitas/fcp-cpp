@@ -2,22 +2,25 @@
 #define __FCP_H__
 
 #include <cstdint>
+#include <iostream>
+#include <map>
+#include <optional>
 #include <stdlib.h>
 #include <string.h>
-#include <map>
-#include <iostream>
 
+#include "fcp_command.hpp"
 #include "fcp_common.hpp"
+#include "fcp_config.hpp"
 #include "fcp_device.hpp"
 #include "fcp_log.hpp"
 #include "fcp_message.hpp"
 #include <yaml-cpp/yaml.h>
-#include "fcp_config.hpp"
-#include "fcp_command.hpp"
 
 #include "json.hpp"
 
 using json = nlohmann::json;
+using SignalMap = std::map<std::string, double>;
+using DecodedMsg = std::pair<std::string, SignalMap>;
 
 #define FILE_MAX_SIZE 1048576
 
@@ -27,39 +30,39 @@ using json = nlohmann::json;
 
 #include "candata.h"
 
-struct badJsonFile : std::exception
-{
-	const char *what() const noexcept { return "error_reading"; }
+struct badJsonFile : std::exception {
+    const char* what() const noexcept { return "error_reading"; }
 };
 
-class Fcp
-{
+class Fcp {
 public:
-	std::map<std::string, FcpDevice> devices;
-	std::map<std::string, FcpLog> logs;
+    std::map<std::string, FcpDevice> devices;
+    std::map<std::string, FcpLog> logs;
 
-	FcpDevice common;
+    void decompile_file(std::string filename);
+    void decompile(json j);
 
-	void decompile_file(std::string filename);
-	void decompile(json j);
+    DecodedMsg decode_msg(CanData);
+    std::optional<CanData> encode_msg(std::string dev_name, std::string msg_name, SignalMap signals);
+    std::optional<CanData> encode_cmd(std::string dev_name, std::string cmd_name, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 
-	std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata);
-	CANdata encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals_list);
-	CANdata encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
-	std::string get_dev_name(uint16_t sid);
-	std::string get_msg_name(uint16_t sid);
-    
-    FcpMessage * get_msg(uint16_t sid);
-    std::map <int, FcpMessage*> get_msgs(void);
+    std::string get_dev_name(uint32_t sid);
+    std::string get_msg_name(uint32_t sid);
 
+    std::map<int, FcpMessage*> get_msgs(void);
 
-    std::pair<std::string, FcpSignal *> get_signal(std::string name);
-	FcpDevice *get_device(int deviceIdentifier);
+    std::pair<std::string, FcpSignal*> get_signal(std::string name);
+    FcpDevice* get_device(int deviceIdentifier);
+    FcpDevice get_common();
+
+    FcpMessage* get_msg(uint32_t sid);
 
 private:
-	std::map<int, FcpMessage *> msgs;
-	std::map<int, FcpMessage *> common_msgs;
-	std::map<int, std::string> dev_names;
+    FcpDevice common;
+
+    std::map<int, FcpMessage*> msgs;
+    std::map<int, FcpMessage*> common_msgs;
+    std::map<int, std::string> dev_names;
 };
 
 #endif

@@ -9,25 +9,25 @@
 using json = nlohmann::json;
 
 class FcpMessage {
-	public:
-		int id;
-		int dlc;
-		int frequency;
-        bool muxed = false;
-        std::string mux;
-		std::string name;
-        std::map<std::string, FcpSignal> signals_list; // std::string -> nome do sinal
-        //signal_list["DU_value"]
+public:
+    int id;
+    int dlc;
+    int frequency;
+    bool muxed = false;
+    bool extended_frame = false;
+    std::string mux;
+    std::string name;
+    std::map<std::string, FcpSignal> signals_list; // std::string -> nome do sinal
+    // signal_list["DU_value"]
 
-		void decompile(json j);
-        std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata msg);
-        CANdata encode_msg(std::map<std::string, double> decoded_msg);
-        CANdata parse_big_endian(CANdata msg, std::pair<std::string, FcpSignal> el);
+    void decompile(json j);
+    std::pair<std::string, std::map<std::string, double>> decode_msg(CanData msg);
 
-        void add_signal(FcpSignal new_signal);
+    CanData encode_msg(std::map<std::string, double> decoded_msg, uint16_t dev_id);
+    CanData encode_cmd(std::map<std::string, double> decoded_msg, uint8_t dev_id, uint32_t msg_id);
+    CanData parse_big_endian(CanData msg, std::pair<std::string, FcpSignal> el);
 
-
-
+    void add_signal(FcpSignal new_signal);
 };
 
 #endif
