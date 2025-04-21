@@ -73,12 +73,12 @@ DecodedMsg Fcp::decode_msg(CanData msg)
 }
 
 std::optional<CanData> Fcp::encode_msg(std::string dev_name, std::string msg_name,
-    SignalMap signals)
+    SignalMap signal_map)
 {
     if (dev_name == "common") {
         for (auto const& [key, val] : this->common_msgs) {
             if (val->name == msg_name) {
-                return common_msgs[key]->encode_msg(signals, 0);
+                return common_msgs[key]->encode_msg(signal_map, 0);
             }
         }
     } else {
@@ -87,7 +87,7 @@ std::optional<CanData> Fcp::encode_msg(std::string dev_name, std::string msg_nam
         }
 
         return this->devices[dev_name].msgs[msg_name]->encode_msg(
-            signals, this->devices[dev_name].id);
+            signal_map, this->devices[dev_name].id);
     }
 
     return std::nullopt;

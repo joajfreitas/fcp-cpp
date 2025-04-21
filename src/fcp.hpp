@@ -43,7 +43,7 @@ public:
     void decompile(json j);
 
     DecodedMsg decode_msg(CanData);
-    std::optional<CanData> encode_msg(std::string dev_name, std::string msg_name, SignalMap signals);
+    std::optional<CanData> encode_msg(std::string dev_name, std::string msg_name, SignalMap signal_map);
     std::optional<CanData> encode_cmd(std::string dev_name, std::string cmd_name, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 
     std::string get_dev_name(uint32_t sid);
