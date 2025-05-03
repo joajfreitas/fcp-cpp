@@ -51,6 +51,28 @@ public:
     }
 
     /**
+     * @brief Set the message ID part of the SID using make_sid.
+     * 
+     * @param msg_id The new message ID.
+     * @details The new SID is computed by preserving the current device ID.
+     */
+    void set_msg_id(uint32_t msg_id) {
+        uint8_t dev_id = get_dev_id(this->sid);
+        this->sid = CanData::make_sid(dev_id, msg_id);
+    }
+
+    /**
+     * @brief Set the device ID part of the SID using make_sid.
+     * 
+     * @param dev_id The new device ID.
+     * @details The new SID is computed by preserving the current message ID.
+     */
+    void set_dev_id(uint8_t dev_id) {
+        uint32_t msg_id = get_msg_id(this->sid);
+        this->sid = CanData::make_sid(dev_id, msg_id);
+    }
+
+    /**
      * @brief Set the data length code (DLC) of the CanData object.
      * 
      * @param dlc The DLC to set.
