@@ -111,6 +111,20 @@ public:
     uint32_t get_sid() const { return sid; }
 
     /**
+     * @brief Get the device ID from the SID.
+     *
+     * @return uint8_t.
+     */
+    uint8_t get_dev_id() const { return ::get_dev_id(sid); }
+
+    /**
+     * @brief Get the message ID from the SID.
+     *
+     * @return uint32_t
+     */
+    uint32_t get_msg_id() const { return ::get_msg_id(sid); }
+
+    /**
      * @brief Check if the frame is an extended frame id
      *
      * @return Boolean
