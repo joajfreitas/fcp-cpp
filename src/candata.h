@@ -7,10 +7,6 @@
 #include <stdexcept>
 #include <stdint.h>
 
-inline uint8_t get_dev_id(uint32_t sid) { return (sid & 0x1F); }
-
-inline uint32_t get_msg_id(uint32_t sid) { return (sid >> 5); }
-
 class CanData {
 public:
     CanData() = default;
@@ -57,7 +53,7 @@ public:
      * @details The new SID is computed by preserving the current device ID.
      */
     void set_msg_id(uint32_t msg_id) {
-        uint8_t dev_id = get_dev_id(this->sid);
+        uint8_t dev_id = get_dev_id();
         this->sid = CanData::make_sid(dev_id, msg_id);
     }
 
@@ -68,7 +64,7 @@ public:
      * @details The new SID is computed by preserving the current message ID.
      */
     void set_dev_id(uint8_t dev_id) {
-        uint32_t msg_id = get_msg_id(this->sid);
+        uint32_t msg_id = get_msg_id();
         this->sid = CanData::make_sid(dev_id, msg_id);
     }
 
@@ -115,14 +111,14 @@ public:
      *
      * @return uint8_t.
      */
-    uint8_t get_dev_id() const { return ::get_dev_id(sid); }
+    uint8_t get_dev_id() const { return (sid & 0x1F); }
 
     /**
      * @brief Get the message ID from the SID.
      *
      * @return uint32_t
      */
-    uint32_t get_msg_id() const { return ::get_msg_id(sid); }
+    uint32_t get_msg_id() const { return (sid >> 5); }
 
     /**
      * @brief Check if the frame is an extended frame id
