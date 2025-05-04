@@ -140,7 +140,7 @@ public:
      * @return std::array<uint16_t, 4>
      * @details No more than 4 data elements are allowed in the array.
      */
-    std::array<uint16_t, 4> get_data() { return data; }
+    std::array<uint16_t, 4> get_data() const { return data; }
 
     /**
      * @brief Get the data at a specific index of the CanData object.
@@ -150,7 +150,7 @@ public:
      * @return uint16_t
      * @throws std::out_of_range if the index is out of range.
      */
-    uint16_t get_data(uint8_t index) { return data.at(index); }
+    uint16_t get_data(uint8_t index) const { return data.at(index); }
 
     /**
      * @brief Get the data length code (DLC) of the CanData object.
@@ -161,7 +161,7 @@ public:
      * the data array is only 4 fields, this is due to the structure of a
      * CAN_frame (data = 8 * uint8_t) when our structure is 4*uint16_t
      */
-    uint8_t get_dlc() { return dlc; }
+    uint8_t get_dlc() const { return dlc; }
 
 private:
     uint32_t sid = 0;
