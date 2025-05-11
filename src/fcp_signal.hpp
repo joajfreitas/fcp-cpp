@@ -26,13 +26,13 @@ public:
     std::string getEndianessReadInt(fcp_endianess_t endianess);
 
     uint16_t get_Start();
-    uint16_t get_lenght();
+    uint16_t get_length();
     double get_scale();
     double get_offset();
     fcp_type_t get_type();
     fcp_endianess_t get_endianess();
 
-    void set_lenght(uint16_t length);
+    void set_length(uint16_t length);
     void set_start(uint16_t start);
     void set_scale(double scale);
     void set_offset(double offset);
