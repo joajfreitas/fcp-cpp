@@ -1,6 +1,6 @@
 #include "fcp_signal.hpp"
 
-void FcpSignal::set_lenght(uint16_t length)
+void FcpSignal::set_length(uint16_t length)
 {
     this->signal.length = length;
 }
@@ -40,7 +40,7 @@ fcp_endianess_t FcpSignal::get_endianess()
     return this->signal.endianess;
 }
 
-uint16_t FcpSignal::get_lenght()
+uint16_t FcpSignal::get_length()
 {
     return this->signal.length;
 }
