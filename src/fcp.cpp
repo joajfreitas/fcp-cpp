@@ -132,7 +132,7 @@ FcpDevice Fcp::get_common()
 
 std::string Fcp::get_dev_name(uint32_t sid)
 {
-    int dev_id = get_dev_id(sid);
+    int dev_id = get_dev_id_from_sid(sid);
     int count = this->dev_names.count(dev_id);
 
     if (count)
@@ -164,19 +164,19 @@ std::pair<std::string, FcpSignal*> Fcp::get_signal(std::string name)
 
 std::string Fcp::get_msg_name(uint32_t sid)
 {
-    std::optional<FcpDevice*> dev = get_device((get_dev_id(sid)));
+    std::optional<FcpDevice*> dev = get_device((get_dev_id_from_sid(sid)));
     if (!dev.has_value()) {
         return "";
     }
 
-    return dev.value()->get_message_name(get_msg_id(sid));
+    return dev.value()->get_message_name(get_msg_id_from_sid(sid));
 }
 
 FcpMessage* Fcp::get_msg(uint32_t sid)
 {
-    FcpDevice* dev = get_device((get_dev_id(sid)));
+    FcpDevice* dev = get_device((get_dev_id_from_sid(sid)));
     if (dev == nullptr) {
         return nullptr;
     }
-    return dev->get_message(get_msg_id(sid));
+    return dev->get_message(get_msg_id_from_sid(sid));
 }

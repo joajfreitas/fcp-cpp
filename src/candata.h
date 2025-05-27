@@ -7,6 +7,10 @@
 #include <stdexcept>
 #include <stdint.h>
 
+inline uint8_t get_dev_id_from_sid(uint32_t sid) { return (sid & 0x1F); }
+
+inline uint32_t get_msg_id_from_sid(uint32_t sid) { return (sid >> 5); }
+
 class CanData {
 public:
     CanData() = default;
