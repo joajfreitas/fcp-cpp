@@ -53,7 +53,7 @@ public:
 
     std::pair<std::string, FcpSignal*> get_signal(std::string name);
     FcpDevice* get_device(int deviceIdentifier);
-    FcpDevice get_common();
+    FcpDevice* get_common();
 
     FcpMessage* get_msg(uint32_t sid);
 

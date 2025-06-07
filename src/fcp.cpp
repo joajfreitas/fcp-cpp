@@ -125,9 +125,9 @@ FcpDevice* Fcp::get_device(int deviceIdentifier)
     return nullptr;
 }
 
-FcpDevice Fcp::get_common()
+FcpDevice* Fcp::get_common()
 {
-    return this->common;
+    return &this->common;
 }
 
 std::string Fcp::get_dev_name(uint32_t sid)
