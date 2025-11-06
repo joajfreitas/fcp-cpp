@@ -23,7 +23,7 @@ void FcpMessage::decompile(json j)
             this->muxed = true;
             this->mux = fcp_signal.mux;
         }
-        this->signals[el.key()] = fcp_signal;
+        this->sigs[el.key()] = fcp_signal;
     }
 
     return;
@@ -31,33 +31,33 @@ void FcpMessage::decompile(json j)
 
 std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CANdata msg)
 {
-    std::map<std::string, double> signals;
+    std::map<std::string, double> sigs;
     
     if (this->muxed == false) {
-        for (auto& el : this->signals) {
+        for (auto& el : this->sigs) {
             auto signal = el.second;
             auto name = el.first;
-            signals[name] = signal.decode_signal(msg);
+            sigs[name] = signal.decode_signal(msg);
         }
     }
     else {
-        auto mux_signal = this->signals[this->mux];
-        signals[this->mux] = mux_signal.decode_signal(msg);
-        unsigned mux_index = signals[this->mux];
+        auto mux_signal = this->sigs[this->mux];
+        sigs[this->mux] = mux_signal.decode_signal(msg);
+        unsigned mux_index = sigs[this->mux];
 
-        for (auto& el : this->signals) {
+        for (auto& el : this->sigs) {
             if (el.first == this->mux) {
                 continue;
             }
 
             auto signal = el.second;
             auto name = el.first;
-            signals[name + to_string(mux_index)] = signal.decode_signal(msg);
+            sigs[name + to_string(mux_index)] = signal.decode_signal(msg);
         }
     }
 
 
-    return std::make_pair(this->name, signals);
+    return std::make_pair(this->name, sigs);
 }
 
 CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg)
@@ -68,7 +68,7 @@ CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg)
 
     msg.dlc = this->dlc;
 
-    for (auto& el : this->signals)
+    for (auto& el : this->sigs)
         word |= el.second.encode_signal(decoded_msg[el.first]);
 
     *ptr = word;

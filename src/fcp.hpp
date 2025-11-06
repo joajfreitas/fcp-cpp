@@ -37,7 +37,7 @@ class Fcp {
 		void decompile(json j);
 
 		std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata);
-		CANdata encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals);
+		CANdata encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double>);
 		CANdata encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 		std::string get_dev_name(uint16_t sid);
 		std::string get_msg_name(uint16_t sid);

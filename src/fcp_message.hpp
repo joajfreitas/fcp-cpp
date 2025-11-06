@@ -16,7 +16,7 @@ class FcpMessage {
 		bool muxed;
 		string mux;
 		std::string name;
-		std::map<std::string, FcpSignal> signals;
+		std::map<std::string, FcpSignal> sigs;
 
 		void decompile(json j);
 		std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata msg);
