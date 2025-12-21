@@ -5,6 +5,8 @@
 #include <string.h>
 #include <map>
 #include <iostream>
+#include <array>
+#include <optional>
 
 #include "fcp_common.hpp"
 #include "fcp_device.hpp"
@@ -12,7 +14,7 @@
 #include "fcp_message.hpp"
 #include "fcp_config.hpp"
 #include "fcp_command.hpp"
-
+#include "datatypes.h"
 
 #include "json.hpp"
 
@@ -37,6 +39,7 @@ class Fcp {
 		void decompile(json j);
 
 		std::pair<std::string, std::map<std::string, double>> decode_msg(CANdata);
+                std::optional<fcp::Decoded> decode_msg(fcp::CanMessage);
 		CANdata encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals);
 		CANdata encode_cmd(std::string dev_id, std::string cmd_id, std::string dst_id, uint16_t arg1, uint16_t arg2, uint16_t arg3);
 		std::string get_dev_name(uint16_t sid);

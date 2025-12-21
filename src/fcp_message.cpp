@@ -32,7 +32,7 @@ void FcpMessage::decompile(json j)
 std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CANdata msg)
 {
     std::map<std::string, double> signals;
-    
+
     if (this->muxed == false) {
         for (auto& el : this->signals) {
             auto signal = el.second;
@@ -58,6 +58,24 @@ std::pair<std::string, std::map<std::string, double>> FcpMessage::decode_msg(CAN
 
 
     return std::make_pair(this->name, signals);
+}
+
+
+fcp::Decoded FcpMessage::decode_msg(fcp::CanMessage msg) {
+    CANdata candata{};
+    candata.sid = msg.id;
+    candata.dlc = msg.dlc;
+
+    std::memcpy(candata.data, msg.data.data(), 8);
+
+    const auto [msg_name, signals] = this->decode_msg(candata);
+
+    fcp::Decoded decoded{};
+    decoded.timestamp = msg.timestamp;
+    decoded.message_name = msg_name;
+    decoded.signals = signals;
+
+    return decoded;
 }
 
 CANdata FcpMessage::encode_msg(std::map<std::string, double> decoded_msg)

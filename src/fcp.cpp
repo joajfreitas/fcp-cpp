@@ -72,6 +72,20 @@ std::pair<std::string, std::map<std::string, double>> Fcp::decode_msg(CANdata ms
     }
 }
 
+std::optional<fcp::Decoded> Fcp::decode_msg(fcp::CanMessage msg)
+{
+    if (this->msgs.find(msg.id) != this->msgs.end()) {
+        return this->msgs.at(msg.id)->decode_msg(msg);
+    }
+    else if (this->common_msgs.find(msg.id) != this->common_msgs.end()) {
+        auto msg_handle = this->common_msgs.at(msg.id);
+        return msg_handle->decode_msg(msg);
+    }
+    else {
+        return std::nullopt;
+    }
+}
+
 CANdata Fcp::encode_msg(std::string dev_id, std::string msg_id, std::map<std::string, double> signals)
 {
 
