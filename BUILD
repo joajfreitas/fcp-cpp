@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 cc_library(
     name = "fcp_cpp",
     srcs = [
@@ -26,6 +28,10 @@ cc_library(
 	"src/fcp_signal.hpp",
 	"src/json.hpp",
 	"src/signal_parser.h"
+    ],
+    copts = [
+        "-O3",
+        "-DNDEBUG",
     ],
     visibility = ["//visibility:public"],
 )

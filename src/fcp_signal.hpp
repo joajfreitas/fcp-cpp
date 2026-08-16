@@ -25,7 +25,13 @@ class FcpSignal {
 		fcp_endianess_t getEndianess (std::string type);
 		string mux;
 		unsigned mux_count;
-	
+		string unit;
+		string comment;
+		double min_value;
+		double max_value;
+
+		fcp_signal_t signal_meta() const { return signal; }
+
 	private:
 		fcp_signal_t signal;
 

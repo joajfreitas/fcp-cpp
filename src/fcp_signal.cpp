@@ -13,6 +13,10 @@ void FcpSignal::decompile(json j)
     this->signal.type = this->getType(j["type"]);
     this->mux = string(j["mux"]);
     this->mux_count = j["mux_count"];
+    this->unit = j.value("unit", "");
+    this->comment = j.value("comment", "");
+    this->min_value = j.value("min_value", 0.0);
+    this->max_value = j.value("max_value", 0.0);
 
     return;
 }
