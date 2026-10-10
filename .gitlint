@@ -1,0 +1,6 @@
+# Enforcement via T6 (title-match-regex): negative lookahead rejects
+# titles starting with a Conventional Commits prefix like "feat(x):"
+# or "fix:" — see [title-match-regex] section. All other checks are
+# gitlint defaults (title <= 72, body required, body lines <= 80).
+[title-match-regex]
+regex = ^(?!(feat|fix|chore|docs|ci|refactor|test|perf|style|build|revert|wip)(\(|:|!)).*
