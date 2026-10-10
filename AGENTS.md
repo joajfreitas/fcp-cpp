@@ -13,9 +13,15 @@ branch and merged its own PRs without being asked to. Don't do that.
   decision, every time, without exceptions.
 - Requested changes are answered with new commits on the PR branch.
 - Never force-push or rebase a PR branch; ask first.
-- Squash-merge is the merge style of record (linear history is required).
-  The PR title becomes the merge commit message, so titles must pass
-  gitlint: ≤ 72 chars, no trailing punctuation, no "WIP".
+- PRs are merged with merge commits, as-is: **squash merges are not
+  used**. Every commit that lands on the default branch must pass
+  gitlint on its own: ≤ 72-char title, no trailing punctuation, no
+  "WIP", body required, body lines ≤ 80.
+- **Keep commits atomic**: one logical change per commit, each
+  self-contained and reviewable on its own; the message body explains
+  that one change, not the whole PR.
+- **Never merge the default branch into feature branches.** To bring a
+  feature branch up to date, rebase it — and ask before force-pushing.
 - Don't touch branches owned by other PR authors.
 
 ## Repo hygiene
