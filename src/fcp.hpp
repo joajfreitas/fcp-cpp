@@ -24,7 +24,7 @@ using DecodedMsg = std::pair<std::string, SignalMap>;
 
 #define FILE_MAX_SIZE 1048576
 
-#define GET_DEV_ID(sid) ((sid)&0x1F)
+#define GET_DEV_ID(sid) ((sid) & 0x1F)
 #define GET_MSG_ID(sid) (((sid) >> 5) & 0x3F)
 #define GET_SID(dev_id, msg_id) (((msg_id) << 5) + (dev_id))
 

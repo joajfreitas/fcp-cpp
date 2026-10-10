@@ -17,9 +17,9 @@ jobs:
       - uses: actions/checkout@v4
 
       # clang-format's built-in Webkit style drifts between versions, so pin
-      # the one the codebase was formatted with, via the official PyPI wheels
-      - name: Install clang-format (pinned to 14.x)
-        run: pipx install 'clang-format==14.0.*'
+      # the one this codebase is formatted with, via the official PyPI wheels
+      - name: Install clang-format (pinned to 21.1)
+        run: pipx install 'clang-format==21.1.*'
 
       - name: Check formatting
         run: make clang-format-check
