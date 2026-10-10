@@ -42,8 +42,9 @@ These rules apply to any AI agent (or automated tooling) working here.
   don't let that happen). Local check: install `clang-format==14.0.*`
   in a venv first.
 - `gitlint` — commit messages in PRs: title ≤ 72, body required, body
-  lines ≤ 80, and no Conventional Commits prefixes
-  (`/tmp/gitlint/bin/gitlint --commits <default-branch>..HEAD`).
+  lines ≤ 80, and no Conventional Commits prefixes. Config lives in
+  the checked-in `.gitlint`; the commit-lint workflow runs
+  `gitlint --commits <default-branch>..HEAD`.
 
 ## Known landmines
 
