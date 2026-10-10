@@ -14,6 +14,9 @@ TESTS := $(addprefix $(TESTDIR), $(CPP_TESTS:.cpp=.o))
 
 INCLUDES := src
 
+GTEST_CFLAGS := $(shell pkg-config --cflags gtest 2>/dev/null)
+GTEST_LIBS := $(shell pkg-config --libs gtest_main 2>/dev/null) -lpthread
+
 # Optimization / Debug flags
 # OPT := -Ofast
 OPT := -g
@@ -57,9 +60,12 @@ clean:
 	rm -rf src/*.o
 	rm -rf tests/*.o
 
+$(TESTS): tests/%.o: tests/%.cpp
+	$(CC) -I$(INCLUDES) $(OPT) $(GTEST_CFLAGS) -c $< -o $@
+
 test: $(OBJECTS) $(TESTS)
 	@echo "Linking tests..."
-	$(CC) $^ -o test_exec
+	$(CC) $(OPT) $^ $(GTEST_LIBS) -o test_exec
 	@echo "Running tests..."
 	@./test_exec
 
