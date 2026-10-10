@@ -19,7 +19,9 @@ jobs:
       # gitlint checks pull request commit messages (defaults: title <= 72
       # chars, no trailing dot/WIP, body required and lines <= 80 chars)
       - name: Install gitlint
-        run: pipx install 'gitlint==0.19.1'
+        run: |
+          python3 -m venv /tmp/gitlint
+          /tmp/gitlint/bin/pip install --disable-pip-version-check gitlint==0.19.1
 
       - name: Lint PR title
         # The squashed merge commit's message is the PR title, so it is
@@ -28,7 +30,7 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           printf '%s' "$PR_TITLE" > /tmp/pr-title
-          gitlint --msg-filename /tmp/pr-title --ignore B6
+          /tmp/gitlint/bin/gitlint --msg-filename /tmp/pr-title --ignore B6
 
       - name: Lint commits in the PR
-        run: gitlint --commits "origin/${{ github.base_ref }}..HEAD"
+        run: /tmp/gitlint/bin/gitlint --commits "origin/${{ github.base_ref }}..HEAD"
