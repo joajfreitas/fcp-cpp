@@ -37,10 +37,10 @@ These rules apply to any AI agent (or automated tooling) working here.
 ## CI (all required on the default branch)
 
 - `Build` — `make fcp-cpp.so` (deps: `ccache`, `libyaml-cpp-dev`).
-- `clang-format` — `make clang-format-check`, pinned to **clang-format 14**
-  (Webkit style; newer versions reformat the vendored `src/json.hpp` —
-  don't let that happen). Local check: install `clang-format==14.0.*`
-  in a venv first.
+- `clang-format` — `make clang-format-check`, pinned to **clang-format
+  21.1** (Webkit style; newer versions reformat the vendored
+  `src/json.hpp` — don't let that happen). Local check: install
+  `clang-format==21.1.*` in a venv first.
 - `gitlint` — commit messages in PRs: title ≤ 72, body required, body
   lines ≤ 80, and no Conventional Commits prefixes. Config lives in
   the checked-in `.gitlint`; the commit-lint workflow runs
