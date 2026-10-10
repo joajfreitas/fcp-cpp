@@ -26,10 +26,15 @@ public:
         assert(extended_frame == false && sid <= 0x7FF || extended_frame == true && sid <= 0x1FFFFFFF);
     }
 
-    CanData(uint32_t sid, uint8_t dlc, std::array<uint16_t, 4> data) : sid(sid & 0x1FFFFFFF), dlc(dlc), data(data), extended_frame(CanData::is_extended_frame(sid)) {
+    CanData(uint32_t sid, uint8_t dlc, std::array<uint16_t, 4> data)
+        : sid(sid & 0x1FFFFFFF)
+        , dlc(dlc)
+        , data(data)
+        , extended_frame(CanData::is_extended_frame(sid))
+    {
         assert(data.size() <= 4);
         assert(dlc <= 8);
-        assert(extended_frame == false && sid <= 0x7FF || extended_frame == true); // No need to check if sid <= 0x1FFFFFFF since we already masked it, removing bits 29-31, since these flags are not needed to identify the message, and are only used for the bus 
+        assert(extended_frame == false && sid <= 0x7FF || extended_frame == true); // No need to check if sid <= 0x1FFFFFFF since we already masked it, removing bits 29-31, since these flags are not needed to identify the message, and are only used for the bus
     }
 
     /**
@@ -97,9 +102,8 @@ private:
 
     static constexpr bool is_extended_frame(uint32_t sid)
     {
-        return sid & 0x80000000 ;
+        return sid & 0x80000000;
     }
-
 };
 
 #endif
