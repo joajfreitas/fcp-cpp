@@ -1,8 +1,6 @@
 # AGENTS.md — guidelines for coding agents working in this repo
 
 These rules apply to any AI agent (or automated tooling) working here.
-They exist because an agent previously pushed directly to the default
-branch and merged its own PRs without being asked to. Don't do that.
 
 ## Git workflow (strict)
 
@@ -20,6 +18,9 @@ branch and merged its own PRs without being asked to. Don't do that.
 - **Keep commits atomic**: one logical change per commit, each
   self-contained and reviewable on its own; the message body explains
   that one change, not the whole PR.
+- **No Conventional Commits.** Write titles as plain sentences, without
+  `type:`, `type(scope):` or `type(scope)!` prefixes (enforced by the
+  checked-in `.gitlint` config).
 - **Never merge the default branch into feature branches.** To bring a
   feature branch up to date, rebase it — and ask before force-pushing.
 - Don't touch branches owned by other PR authors.
@@ -40,8 +41,9 @@ branch and merged its own PRs without being asked to. Don't do that.
   (Webkit style; newer versions reformat the vendored `src/json.hpp` —
   don't let that happen). Local check: install `clang-format==14.0.*`
   in a venv first.
-- `gitlint` — commit messages in PRs: title ≤ 72, body required,
-  body lines ≤ 80 (`gitlint --commits <default-branch>..HEAD`).
+- `gitlint` — commit messages in PRs: title ≤ 72, body required, body
+  lines ≤ 80, and no Conventional Commits prefixes
+  (`/tmp/gitlint/bin/gitlint --commits <default-branch>..HEAD`).
 
 ## Known landmines
 
