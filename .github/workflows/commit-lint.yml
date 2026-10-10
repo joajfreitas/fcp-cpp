@@ -1,0 +1,36 @@
+name: commit-lint
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitlint:
+    name: gitlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history: needs master to diff the PR commits
+
+      # gitlint checks pull request commit messages (defaults: title <= 72
+      # chars, no trailing dot/WIP, body required and lines <= 80 chars)
+      - name: Install gitlint
+        run: |
+          python3 -m venv /tmp/gitlint
+          /tmp/gitlint/bin/pip install --disable-pip-version-check gitlint==0.19.1
+
+      - name: Lint PR title
+        # The squashed merge commit's message is the PR title, so it is
+        # linted too. B6 (body required) is skipped: titles have no body.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          printf '%s' "$PR_TITLE" > /tmp/pr-title
+          /tmp/gitlint/bin/gitlint --msg-filename /tmp/pr-title --ignore B6
+
+      - name: Lint commits in the PR
+        run: /tmp/gitlint/bin/gitlint --commits "origin/${{ github.base_ref }}..HEAD"
