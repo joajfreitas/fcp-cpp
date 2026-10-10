@@ -24,8 +24,8 @@ jobs:
           /tmp/gitlint/bin/pip install --disable-pip-version-check gitlint==0.19.1
 
       - name: Lint PR title
-        # The squashed merge commit's message is the PR title, so it is
-        # linted too. B6 (body required) is skipped: titles have no body.
+        # PR titles are linted as general hygiene. B6 (body required) is
+        # skipped here: a title has no body by definition.
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
