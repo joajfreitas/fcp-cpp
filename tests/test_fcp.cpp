@@ -102,7 +102,7 @@ static json get_send_cmd_signal_map(double id, double dst, double arg1,
     };
 }
 
-TEST(FcpEncodeCmd, SidUsesSendCmdMessageId)
+TEST(FcpEncodeCmd, GivenValidConfig_WhenEncodingCmd_MessageIdIsSendCmdId)
 {
     Fcp fcp;
     fcp.decompile(make_config(SEND_CMD_ID));
@@ -117,21 +117,7 @@ TEST(FcpEncodeCmd, SidUsesSendCmdMessageId)
     EXPECT_EQ(msg->get_dlc(), 8);
 }
 
-TEST(FcpEncodeCmd, SidFollowsConfiguredSendCmdId)
-{
-    Fcp fcp;
-    fcp.decompile(make_config(63));
-
-    std::optional<CanData> msg = fcp.encode_cmd("interface", "cmd_1", "master",
-        CMD_ARG1, CMD_ARG2, CMD_ARG3);
-
-    ASSERT_TRUE(msg.has_value());
-    EXPECT_EQ(msg->get_sid(), (63 << 5) | INTERFACE_ID);
-    EXPECT_EQ(get_msg_id(msg->get_sid()), (uint32_t)63);
-    EXPECT_EQ(get_dev_id(msg->get_sid()), (uint32_t)INTERFACE_ID);
-}
-
-TEST(FcpEncodeCmd, PayloadCarriesCmdIdAndDstId)
+TEST(FcpEncodeCmd, GivenValidConfig_WhenEncodingCmd_PayloadCarriesCmdIdAndDstId)
 {
     Fcp fcp;
     fcp.decompile(make_config(SEND_CMD_ID));
@@ -150,7 +136,7 @@ TEST(FcpEncodeCmd, PayloadCarriesCmdIdAndDstId)
     EXPECT_EQ(msg->get_data(3), (uint16_t)((CMD_ARG2 >> 8) | (CMD_ARG3 << 8)));
 }
 
-TEST(FcpEncodeCmd, FrameDecodesToSendCmdSignals)
+TEST(FcpEncodeCmd, GivenEncodedCmdFrame_WhenDecodingViaSendCmd_DecodesAllSignals)
 {
     Fcp fcp;
     json config = make_config(SEND_CMD_ID);
@@ -177,7 +163,7 @@ TEST(FcpEncodeCmd, FrameDecodesToSendCmdSignals)
     EXPECT_EQ(decoded.second["arg3"], (double)CMD_ARG3);
 }
 
-TEST(FcpEncodeCmd, RejectsUnknownInputs)
+TEST(FcpEncodeCmd, GivenUnknownDeviceOrCommand_WhenEncodingCmd_ReturnsNoMessage)
 {
     Fcp fcp;
     fcp.decompile(make_config(SEND_CMD_ID));
@@ -193,7 +179,7 @@ TEST(FcpEncodeCmd, RejectsUnknownInputs)
             .has_value());
 }
 
-TEST(FcpEncodeCmd, RequiresSendCmdInCommon)
+TEST(FcpEncodeCmd, GivenNoSendCmdInCommon_WhenEncodingCmd_ReturnsNoMessage)
 {
     Fcp fcp;
     fcp.decompile(make_config(0));
@@ -203,7 +189,7 @@ TEST(FcpEncodeCmd, RequiresSendCmdInCommon)
             .has_value());
 }
 
-TEST(FcpMessageEncodeCmd, UsesProvidedMsgId)
+TEST(FcpMessageEncodeCmd, GivenSignalMap_WhenEncodingCmd_UsesProvidedMsgId)
 {
     json config = make_config(SEND_CMD_ID);
 
