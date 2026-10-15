@@ -25,7 +25,7 @@ jobs:
         run: make clang-format-check
 
   build:
-    name: Build
+    name: Build and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,10 @@ jobs:
       - name: Install dependencies
         run: >
           sudo apt-get update &&
-          sudo apt-get install -y --no-install-recommends ccache libyaml-cpp-dev
+          sudo apt-get install -y --no-install-recommends ccache libyaml-cpp-dev libgtest-dev
 
       - name: Build shared library
         run: make fcp-cpp.so
+
+      - name: Run tests
+        run: make test

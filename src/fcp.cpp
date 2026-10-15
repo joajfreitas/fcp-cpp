@@ -111,7 +111,7 @@ std::optional<CanData> Fcp::encode_cmd(std::string dev_name, std::string cmd_nam
         { "arg2", arg2 },
         { "arg3", arg3 } };
 
-    return common.msgs["send_cmd"]->encode_cmd(signal_map, dev_id, 0);
+    return common.msgs["send_cmd"]->encode_cmd(signal_map, dev_id, common.msgs["send_cmd"]->id);
 }
 
 FcpDevice* Fcp::get_device(int deviceIdentifier)
