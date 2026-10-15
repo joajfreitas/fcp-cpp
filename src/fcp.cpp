@@ -114,6 +114,41 @@ std::optional<CanData> Fcp::encode_cmd(std::string dev_name, std::string cmd_nam
     return common.msgs["send_cmd"]->encode_cmd(signal_map, dev_id, common.msgs["send_cmd"]->id);
 }
 
+std::optional<CanData> Fcp::encode_cfg_get(std::string dev_name, std::string cfg_name,
+    std::string dst_name)
+{
+    if (this->devices.count(dev_name) == 0 || this->devices.count(dst_name) == 0 || this->devices[dst_name].cfgs.count(cfg_name) == 0 || this->common.msgs.count("req_get") == 0) {
+        return std::nullopt;
+    }
+
+    uint16_t _dst_id = this->devices[dst_name].id;
+    uint16_t _cfg_id = this->devices[dst_name].cfgs[cfg_name].id;
+    uint16_t dev_id = this->devices[dev_name].id;
+
+    std::map<std::string, double> signal_map = { { "id", _cfg_id },
+        { "dst", _dst_id } };
+
+    return common.msgs["req_get"]->encode_cmd(signal_map, dev_id, common.msgs["req_get"]->id);
+}
+
+std::optional<CanData> Fcp::encode_cfg_set(std::string dev_name, std::string cfg_name,
+    std::string dst_name, uint32_t data)
+{
+    if (this->devices.count(dev_name) == 0 || this->devices.count(dst_name) == 0 || this->devices[dst_name].cfgs.count(cfg_name) == 0 || this->common.msgs.count("req_set") == 0) {
+        return std::nullopt;
+    }
+
+    uint16_t _dst_id = this->devices[dst_name].id;
+    uint16_t _cfg_id = this->devices[dst_name].cfgs[cfg_name].id;
+    uint16_t dev_id = this->devices[dev_name].id;
+
+    std::map<std::string, double> signal_map = { { "id", _cfg_id },
+        { "dst", _dst_id },
+        { "data", data } };
+
+    return common.msgs["req_set"]->encode_cmd(signal_map, dev_id, common.msgs["req_set"]->id);
+}
+
 FcpDevice* Fcp::get_device(int deviceIdentifier)
 {
 
