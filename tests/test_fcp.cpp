@@ -25,6 +25,12 @@ static constexpr uint16_t MASTER_ID = 5;
 static constexpr uint16_t CMD_ID = 3;
 static constexpr uint16_t SEND_CMD_ID = 61;
 
+/* Config-related constants */
+static constexpr uint16_t CFG_ID = 7;
+static constexpr uint32_t CFG_VALUE = 0x01020304;
+static constexpr uint16_t REQ_GET_ID = 3;
+static constexpr uint16_t REQ_SET_ID = 5;
+
 /* Command arguments used by the tests */
 static constexpr uint16_t CMD_ARG1 = 100;
 static constexpr uint16_t CMD_ARG2 = 200;
@@ -67,6 +73,34 @@ static json make_device_json(std::string name, uint16_t id)
         { "cfgs", json::object() } };
 }
 
+static json make_cfg_json(std::string name, uint16_t id)
+{
+    return json { { "name", name }, { "id", id }, { "comment", "test cfg" } };
+}
+
+/*
+ * Builds req_get/req_set common messages with the layout:
+ *   id:   bits  0-15
+ *   dst:  bits 16-23
+ *   data: bits 24-55 (req_set only)
+ */
+static json make_req_msg_json(std::string name, uint16_t msg_id)
+{
+    json signals = { { "id", make_signal("id", 0, 16) },
+        { "dst", make_signal("dst", 16, 8) } };
+
+    if (name == "req_set") {
+        signals["data"] = make_signal("data", 24, 32);
+    }
+
+    return json { { "name", name },
+        { "id", msg_id },
+        { "dlc", 8 },
+        { "frequency", 0 },
+        { "extended_frame", false },
+        { "signals", signals } };
+}
+
 /*
  * Builds a valid FCP config. `send_cmd_id` is the message id given to the
  * common "send_cmd" message; 0 turns the message off entirely.
@@ -100,6 +134,30 @@ static json get_send_cmd_signal_map(double id, double dst, double arg1,
     return {
         { "id", id }, { "dst", dst }, { "arg1", arg1 }, { "arg2", arg2 }, { "arg3", arg3 }
     };
+}
+
+/*
+ * Builds an FCP config with config support: the "interface" device owns
+ * `cfg_1`, and the common device carries `req_get`/`req_set` (unless their
+ * ids are 0, which turns the message off entirely).
+ */
+static json make_config_with_cfgs(uint16_t send_cmd_id, uint16_t req_get_id,
+    uint16_t req_set_id)
+{
+    json config = make_config(send_cmd_id);
+
+    json interface = config["devices"]["interface"];
+    interface["cfgs"]["cfg_1"] = make_cfg_json("cfg_1", CFG_ID);
+    config["devices"]["interface"] = interface;
+
+    if (req_get_id > 0) {
+        config["common"]["msgs"]["req_get"] = make_req_msg_json("req_get", req_get_id);
+    }
+    if (req_set_id > 0) {
+        config["common"]["msgs"]["req_set"] = make_req_msg_json("req_set", req_set_id);
+    }
+
+    return config;
 }
 
 TEST(FcpEncodeCmd, GivenValidConfig_WhenEncodingCmd_MessageIdIsSendCmdId)
@@ -212,4 +270,148 @@ TEST(FcpMessageEncodeCmd, GivenSignalMap_WhenEncodingCmd_UsesProvidedMsgId)
     EXPECT_EQ(decoded.second["arg1"], (double)CMD_ARG1);
     EXPECT_EQ(decoded.second["arg2"], (double)CMD_ARG2);
     EXPECT_EQ(decoded.second["arg3"], (double)CMD_ARG3);
+}
+
+TEST(FcpEncodeCfgGet, GivenValidConfig_WhenEncodingCfgGet_MessageIdIsReqGetId)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID));
+
+    std::optional<CanData> msg = fcp.encode_cfg_get("master", "cfg_1", "interface");
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->get_sid(), (REQ_GET_ID << 5) | MASTER_ID);
+    EXPECT_EQ(get_msg_id(msg->get_sid()), (uint32_t)REQ_GET_ID);
+    EXPECT_EQ(get_dev_id(msg->get_sid()), (uint32_t)MASTER_ID);
+    EXPECT_EQ(msg->get_dlc(), 8);
+}
+
+TEST(FcpEncodeCfgGet, GivenValidConfig_WhenEncodingCfgGet_PayloadCarriesCfgIdAndDstId)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID));
+
+    std::optional<CanData> msg = fcp.encode_cfg_get("master", "cfg_1", "interface");
+
+    ASSERT_TRUE(msg.has_value());
+    /* Signal layout: id: bits 0-15 | dst: bits 16-23 */
+    EXPECT_EQ(msg->get_data(0), (uint16_t)CFG_ID);
+    EXPECT_EQ(msg->get_data(1), (uint16_t)INTERFACE_ID);
+    EXPECT_EQ(msg->get_data(2), (uint16_t)0);
+    EXPECT_EQ(msg->get_data(3), (uint16_t)0);
+}
+
+TEST(FcpEncodeCfgGet, GivenEncodedCfgGetFrame_WhenDecodingViaReqGet_DecodesAllSignals)
+{
+    json config = make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID);
+    Fcp fcp;
+    fcp.decompile(config);
+
+    std::optional<CanData> msg = fcp.encode_cfg_get("master", "cfg_1", "interface");
+    ASSERT_TRUE(msg.has_value());
+
+    FcpMessage req_get;
+    req_get.decompile(config["common"]["msgs"]["req_get"]);
+
+    DecodedMsg decoded = req_get.decode_msg(*msg);
+    EXPECT_EQ(decoded.first, std::string("req_get"));
+    ASSERT_EQ(decoded.second.count("id"), 1u);
+    ASSERT_EQ(decoded.second.count("dst"), 1u);
+    EXPECT_EQ(decoded.second["id"], (double)CFG_ID);
+    EXPECT_EQ(decoded.second["dst"], (double)INTERFACE_ID);
+}
+
+TEST(FcpEncodeCfgGet, GivenUnknownDeviceOrCfg_WhenEncodingCfgGet_ReturnsNoMessage)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID));
+
+    EXPECT_FALSE(fcp.encode_cfg_get("unknown_dev", "cfg_1", "interface").has_value());
+    EXPECT_FALSE(fcp.encode_cfg_get("master", "cfg_1", "unknown_dev").has_value());
+    EXPECT_FALSE(fcp.encode_cfg_get("master", "unknown_cfg", "interface").has_value());
+}
+
+TEST(FcpEncodeCfgGet, GivenNoReqGetInCommon_WhenEncodingCfgGet_ReturnsNoMessage)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, 0, REQ_SET_ID));
+
+    EXPECT_FALSE(fcp.encode_cfg_get("master", "cfg_1", "interface").has_value());
+}
+
+TEST(FcpEncodeCfgSet, GivenValidConfig_WhenEncodingCfgSet_MessageIdIsReqSetId)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID));
+
+    std::optional<CanData> msg = fcp.encode_cfg_set("master", "cfg_1", "interface",
+        CFG_VALUE);
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->get_sid(), (REQ_SET_ID << 5) | MASTER_ID);
+    EXPECT_EQ(get_msg_id(msg->get_sid()), (uint32_t)REQ_SET_ID);
+    EXPECT_EQ(get_dev_id(msg->get_sid()), (uint32_t)MASTER_ID);
+    EXPECT_EQ(msg->get_dlc(), 8);
+}
+
+TEST(FcpEncodeCfgSet, GivenValidConfig_WhenEncodingCfgSet_PayloadCarriesValue)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID));
+
+    std::optional<CanData> msg = fcp.encode_cfg_set("master", "cfg_1", "interface",
+        CFG_VALUE);
+
+    ASSERT_TRUE(msg.has_value());
+    /* Signal layout:
+     * id: bits 0-15 | dst: bits 16-23 | data: bits 24-55      */
+    EXPECT_EQ(msg->get_data(0), (uint16_t)CFG_ID);
+    EXPECT_EQ(msg->get_data(1), (uint16_t)(INTERFACE_ID | ((CFG_VALUE & 0xFF) << 8)));
+    EXPECT_EQ(msg->get_data(2), (uint16_t)((CFG_VALUE >> 8) & 0xFFFF));
+    EXPECT_EQ(msg->get_data(3), (uint16_t)((CFG_VALUE >> 24) & 0xFF));
+}
+
+TEST(FcpEncodeCfgSet, GivenEncodedCfgSetFrame_WhenDecodingViaReqSet_DecodesAllSignals)
+{
+    json config = make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID);
+    Fcp fcp;
+    fcp.decompile(config);
+
+    std::optional<CanData> msg = fcp.encode_cfg_set("master", "cfg_1", "interface",
+        CFG_VALUE);
+    ASSERT_TRUE(msg.has_value());
+
+    FcpMessage req_set;
+    req_set.decompile(config["common"]["msgs"]["req_set"]);
+
+    DecodedMsg decoded = req_set.decode_msg(*msg);
+    EXPECT_EQ(decoded.first, std::string("req_set"));
+    ASSERT_EQ(decoded.second.count("id"), 1u);
+    ASSERT_EQ(decoded.second.count("dst"), 1u);
+    ASSERT_EQ(decoded.second.count("data"), 1u);
+    EXPECT_EQ(decoded.second["id"], (double)CFG_ID);
+    EXPECT_EQ(decoded.second["dst"], (double)INTERFACE_ID);
+    EXPECT_EQ(decoded.second["data"], (double)CFG_VALUE);
+}
+
+TEST(FcpEncodeCfgSet, GivenUnknownDeviceOrCfg_WhenEncodingCfgSet_ReturnsNoMessage)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, REQ_SET_ID));
+
+    EXPECT_FALSE(fcp.encode_cfg_set("unknown_dev", "cfg_1", "interface", CFG_VALUE)
+            .has_value());
+    EXPECT_FALSE(fcp.encode_cfg_set("master", "cfg_1", "unknown_dev", CFG_VALUE)
+            .has_value());
+    EXPECT_FALSE(fcp.encode_cfg_set("master", "unknown_cfg", "interface", CFG_VALUE)
+            .has_value());
+}
+
+TEST(FcpEncodeCfgSet, GivenNoReqSetInCommon_WhenEncodingCfgSet_ReturnsNoMessage)
+{
+    Fcp fcp;
+    fcp.decompile(make_config_with_cfgs(SEND_CMD_ID, REQ_GET_ID, 0));
+
+    EXPECT_FALSE(fcp.encode_cfg_set("master", "cfg_1", "interface", CFG_VALUE)
+            .has_value());
 }
